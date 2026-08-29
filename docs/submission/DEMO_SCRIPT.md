@@ -1,6 +1,6 @@
 # PorsiPas 2–3 minute demo script
 
-Status: submission-candidate rehearsal script. Complete the final two-pass device checklist before judging.
+Status: device-validated Phase 6–8 rehearsal script. Rehearse twice and record the backup video before judging.
 
 ## Roles and setup
 
@@ -21,7 +21,7 @@ Narrator:
 
 > Campus events often end with safe, unserved food, while nearby students may never hear about it in time. PorsiPas turns that surplus into live meteorite FoodDrops that students can find and rescue before pickup ends.
 
-Show the PorsiPas home screen and PorsiPal briefly. Do not spend time explaining the mascot before the behaviour.
+Show the PorsiPas home screen and briefly point to the 30-second tour. Do not open it during the timed happy path unless a judge asks how verification or privacy works.
 
 ### 0:20–0:55 — Host creates a FoodDrop
 
@@ -65,15 +65,15 @@ Narrator:
 
 > The celebration appears only after the backend confirms the collection. A duplicate, expired, depleted, cancelled, or invalid scan does not award success.
 
-### 1:55–2:20 — Return loop and impact
+### 1:55–2:25 — Return loop, progression, and social hook
 
-On Phone B, show the profile/history, weekly streak, and the private watch-zone radius. Describe notifications as the tested running-app baseline, not closed-app remote push.
+On Phone B, open Profile and show the PorsiPal Cosmic Journey, weekly three-rescue mission, next rank, one badge, history, and private watch-zone radius. Tap **Share my rescue journey** just far enough to show the native share sheet, then dismiss it without posting. Describe notifications as the tested running-app baseline, not closed-app remote push.
 
 Narrator:
 
-> PorsiPas makes the action sticky with weekly streaks and a personal rescue history. We count verified portions, not invented carbon estimates. Alerts are optional and user-controlled.
+> PorsiPas makes the action sticky with a weekly mission, ranks, badges, and personal history—all derived from verified collections. Sharing is optional and never includes a FoodDrop location or QR. We count real portions, not invented carbon estimates.
 
-### 2:20–2:40 — Close
+### 2:25–2:45 — Close
 
 Narrator:
 
@@ -92,6 +92,7 @@ Use only if rehearsal is under time: briefly show a low-stock or ending-soon bad
 3. **Realtime refresh is delayed:** use the app's refresh action. Never edit Supabase rows from the dashboard during the demo.
 4. **Push notification is unavailable:** say it is deferred or foreground-only and demonstrate discovery from the map/list. Never show a simulated notification as if it were live.
 5. **One phone fails entirely:** use a rehearsed recording of the complete two-phone path while keeping the working app available for questions.
+6. **Native share sheet is slow or unavailable:** skip it. Sharing is an optional social hook and never blocks or changes the verified rescue.
 
 ## Recording requirements
 

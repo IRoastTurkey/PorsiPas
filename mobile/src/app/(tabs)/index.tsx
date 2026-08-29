@@ -83,6 +83,21 @@ export default function DiscoverScreen() {
         description="Find live surplus meals nearby before their pickup windows close."
       />
 
+      <Pressable
+        accessibilityHint="Opens a short explanation of the PorsiPas rescue loop"
+        accessibilityRole="button"
+        onPress={() => router.push('/how-it-works')}
+        style={({ pressed }) => [styles.tourCard, pressed && styles.pressed]}>
+        <View style={styles.tourSymbol}>
+          <Text style={styles.tourSymbolText}>✦</Text>
+        </View>
+        <View style={styles.locationCopy}>
+          <Text style={styles.tourTitle}>New here? Take the 30-second tour</Text>
+          <Text style={styles.tourDescription}>See how verified rescues, missions, privacy, and PorsiPal fit together.</Text>
+        </View>
+        <Text style={styles.tourArrow}>›</Text>
+      </Pressable>
+
       <View style={styles.locationCard}>
         <View style={styles.locationCopy}>
           <Text style={styles.locationTitle}>
@@ -194,6 +209,13 @@ export default function DiscoverScreen() {
 }
 
 const styles = StyleSheet.create({
+  tourCard: { flexDirection: 'row', alignItems: 'center', gap: spacing.md, minHeight: 72, padding: spacing.md, borderWidth: 1, borderColor: '#D9CDEE', borderRadius: radii.md, backgroundColor: colors.lavender },
+  tourSymbol: { width: 44, height: 44, alignItems: 'center', justifyContent: 'center', borderRadius: radii.pill, backgroundColor: colors.surface },
+  tourSymbolText: { color: colors.meteor, fontSize: typeScale.title, fontWeight: '900' },
+  tourTitle: { color: colors.ink, fontSize: typeScale.body, fontWeight: '900' },
+  tourDescription: { color: colors.muted, fontSize: typeScale.caption, lineHeight: 18 },
+  tourArrow: { color: colors.meteor, fontSize: 32, fontWeight: '700' },
+  pressed: { opacity: 0.78 },
   locationCard: { gap: spacing.md, padding: spacing.lg, borderRadius: radii.md, backgroundColor: colors.mint },
   locationCopy: { gap: spacing.xs },
   locationTitle: { color: colors.ink, fontSize: typeScale.bodyLarge, fontWeight: '900' },

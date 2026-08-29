@@ -55,6 +55,7 @@
     "lint": "expo lint",
     "typecheck": "tsc --noEmit",
     "verify:backend": "node ./scripts/verify-phase2-backend.mjs",
+    "verify:engagement": "node ./scripts/verify-phase68-engagement.mjs",
     "verify:retention": "node ./scripts/verify-phase4-backend.mjs"
   },
   "private": true,

@@ -35,5 +35,8 @@ On one physical device, enable TalkBack or VoiceOver and complete:
 4. Reach the scan/collect action.
 5. After a confirmed test collection, hear the success heading and updated stock.
 6. Navigate back without becoming trapped in the success view.
+7. Open the PorsiPal Cosmic Journey and hear the rank, next-rank progress, weekly mission, daily status, and each badge's locked/unlocked state.
+8. Open and dismiss the native share sheet, then confirm focus returns to the originating screen.
+9. Open the 30-second tour from Discover and navigate through all three labelled steps.
 
 Record device, OS version, tester, date, and any limitations in the final checklist.
