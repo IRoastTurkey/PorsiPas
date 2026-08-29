@@ -6,6 +6,8 @@ import MapView, { Marker } from 'react-native-maps';
 import { AppScreen } from '@/components/app-screen';
 import { FoodDropCard } from '@/components/discovery/food-drop-card';
 import { PageHeader } from '@/components/page-header';
+import { MeteorMarker, resolveFoodDropVisualState } from '@/components/polish';
+import { EmptyState, ErrorState, LoadingState } from '@/components/states';
 import { DEFAULT_CAMPUS_REGION } from '@/constants/food-drops';
 import { colors, radii, spacing, typeScale } from '@/constants/theme';
 import type { FoodDropSummary } from '@/domain/types';
@@ -129,28 +131,23 @@ export default function DiscoverScreen() {
       </View>
 
       {loading && drops.length === 0 ? (
-        <View style={styles.stateCard}>
-          <Text style={styles.stateTitle}>Looking for active FoodDrops…</Text>
-        </View>
+        <LoadingState />
       ) : null}
 
       {errorMessage ? (
-        <View style={styles.errorCard}>
-          <Text style={styles.stateTitle}>Unable to load discovery</Text>
-          <Text style={styles.stateDescription}>{errorMessage}</Text>
-          <Pressable accessibilityRole="button" onPress={() => void loadDrops(origin)}>
-            <Text style={styles.retryText}>Try again</Text>
-          </Pressable>
-        </View>
+        <ErrorState
+          description={errorMessage}
+          onRetry={() => void loadDrops(origin)}
+          title="Unable to load discovery"
+        />
       ) : null}
 
       {!loading && !errorMessage && drops.length === 0 ? (
-        <View style={styles.stateCard}>
-          <Text style={styles.stateTitle}>No active FoodDrops right now</Text>
-          <Text style={styles.stateDescription}>
-            There are no unexpired drops with portions remaining. Check again soon.
-          </Text>
-        </View>
+        <EmptyState
+          description="There are no unexpired drops with portions remaining. Fresh rescues can appear anytime."
+          primaryAction={{ label: 'Check again', onPress: () => void loadDrops(origin) }}
+          title="No active FoodDrops right now"
+        />
       ) : null}
 
       {!errorMessage && drops.length > 0 && view === 'map' ? (
@@ -168,10 +165,13 @@ export default function DiscoverScreen() {
             <Marker
               key={drop.id}
               coordinate={{ latitude: drop.latitude, longitude: drop.longitude }}
-              description={`${drop.remainingStock} portions left`}
-              onCalloutPress={() => openDrop(drop.id)}
-              title={drop.title}
-            />
+              onPress={() => openDrop(drop.id)}>
+              <MeteorMarker
+                remainingStock={drop.remainingStock}
+                state={resolveFoodDropVisualState(drop)}
+                title={drop.title}
+              />
+            </Marker>
           ))}
         </MapView>
       ) : null}
@@ -209,11 +209,6 @@ const styles = StyleSheet.create({
   switchText: { color: colors.muted, fontWeight: '800' },
   switchTextActive: { color: colors.primaryDark },
   refreshText: { color: colors.primaryDark, fontWeight: '900' },
-  stateCard: { gap: spacing.sm, padding: spacing.xl, borderWidth: 1, borderColor: colors.border, borderRadius: radii.md, backgroundColor: colors.surface },
-  errorCard: { gap: spacing.sm, padding: spacing.xl, borderRadius: radii.md, backgroundColor: colors.peach },
-  stateTitle: { color: colors.ink, fontSize: typeScale.bodyLarge, fontWeight: '900' },
-  stateDescription: { color: colors.muted, fontSize: typeScale.body, lineHeight: 21 },
-  retryText: { color: colors.primaryDark, fontWeight: '900', textDecorationLine: 'underline' },
   dropList: { gap: spacing.md },
   map: { height: 360, borderRadius: radii.md },
   summary: { color: colors.muted, fontSize: typeScale.caption, textAlign: 'center' },

@@ -1,6 +1,6 @@
 # PorsiPas 2–3 minute demo script
 
-Status: rehearsal draft. Anything marked “verify after merge” must be removed or adapted if it is not working on the final build.
+Status: submission-candidate rehearsal script. Complete the final two-pass device checklist before judging.
 
 ## Roles and setup
 
@@ -37,7 +37,7 @@ Narrator:
 
 > Anyone can act as a host or rescuer. Posting is intentionally quick, and this stock is shared live rather than buried in a chat message.
 
-### 0:55–1:25 — Rescuer discovers the drop (verify after Phase 3 merge)
+### 0:55–1:25 — Rescuer discovers the drop
 
 On Phone B:
 
@@ -51,7 +51,7 @@ Narrator:
 
 If location permission is denied, demonstrate the intended fallback rather than changing device settings on stage.
 
-### 1:25–1:55 — QR-verified rescue (verify after Phase 3 merge)
+### 1:25–1:55 — QR-verified rescue
 
 On Phone B, scan Phone A's QR code and confirm collection.
 
@@ -65,9 +65,9 @@ Narrator:
 
 > The celebration appears only after the backend confirms the collection. A duplicate, expired, depleted, cancelled, or invalid scan does not award success.
 
-### 1:55–2:20 — Return loop and impact (verify after Phase 4 merge)
+### 1:55–2:20 — Return loop and impact
 
-On Phone B, show the profile/history and weekly streak. Show nearby alert preferences only if real notification behaviour is implemented and tested.
+On Phone B, show the profile/history, weekly streak, and the private watch-zone radius. Describe notifications as the tested running-app baseline, not closed-app remote push.
 
 Narrator:
 

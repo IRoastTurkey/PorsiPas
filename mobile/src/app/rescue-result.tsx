@@ -3,6 +3,8 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { useRouter } from 'expo-router';
 
 import { AppScreen } from '@/components/app-screen';
+import { RescueSuccess } from '@/components/polish';
+import { EmptyState, OfflineState } from '@/components/states';
 import { colors, radii, spacing, typeScale } from '@/constants/theme';
 import type { CollectionResultCode } from '@/domain/types';
 import {
@@ -56,12 +58,11 @@ export default function RescueResultScreen() {
   if (!attempt) {
     return (
       <AppScreen>
-        <Text style={styles.eyebrow}>RESCUE RESULT</Text>
-        <Text style={styles.title}>No recent scan result</Text>
-        <Text style={styles.body}>Start from an active FoodDrop and scan its host QR.</Text>
-        <Pressable accessibilityRole="button" onPress={() => router.replace('/')} style={styles.primaryButton}>
-          <Text style={styles.primaryButtonText}>Back to discovery</Text>
-        </Pressable>
+        <EmptyState
+          description="Start from an active FoodDrop and scan its host QR."
+          primaryAction={{ label: 'Back to discovery', onPress: () => router.replace('/') }}
+          title="No recent scan result"
+        />
       </AppScreen>
     );
   }
@@ -82,18 +83,39 @@ export default function RescueResultScreen() {
     }
   };
 
+  if (result.code === 'success') {
+    return (
+      <AppScreen>
+        <RescueSuccess
+          onDone={() => leaveFor('discovery')}
+          onViewProfile={() => {
+            clearLastCollectionAttempt();
+            router.replace('/profile');
+          }}
+          result={result}
+        />
+      </AppScreen>
+    );
+  }
+
+  if (result.code === 'offline') {
+    return (
+      <AppScreen>
+        <OfflineState
+          onRetry={() => leaveFor('retry')}
+          secondaryAction={{ label: 'Back to discovery', onPress: () => leaveFor('discovery') }}
+        />
+      </AppScreen>
+    );
+  }
+
   return (
     <AppScreen>
-      <Text style={styles.eyebrow}>{result.code === 'success' ? 'VERIFIED RESCUE' : 'COLLECTION NOT COMPLETED'}</Text>
+      <Text style={styles.eyebrow}>COLLECTION NOT COMPLETED</Text>
       <Text style={styles.title}>{copy.title}</Text>
-      <View style={[styles.resultCard, result.code === 'success' ? styles.successCard : styles.failureCard]}>
+      <View style={[styles.resultCard, styles.failureCard]}>
         <Text accessibilityLiveRegion="polite" style={styles.resultCode}>{result.code.replaceAll('_', ' ').toUpperCase()}</Text>
         <Text style={styles.body}>{copy.body}</Text>
-        {result.code === 'success' ? (
-          <Text style={styles.stock}>
-            {Math.max(0, result.remainingStock ?? 0)} portions remain
-          </Text>
-        ) : null}
       </View>
 
       {retryable && foodDropId ? (
@@ -109,7 +131,7 @@ export default function RescueResultScreen() {
       <Pressable accessibilityRole="button" onPress={() => leaveFor('discovery')}>
         <Text style={styles.discoveryLink}>Back to discovery</Text>
       </Pressable>
-      <Text style={styles.note}>Points and streak rewards are deferred to Phase 4.</Text>
+      <Text style={styles.note}>Points and streaks change only after the server confirms a rescue.</Text>
     </AppScreen>
   );
 }
@@ -118,11 +140,9 @@ const styles = StyleSheet.create({
   eyebrow: { color: colors.primaryDark, fontSize: typeScale.caption, fontWeight: '900', letterSpacing: 1 },
   title: { color: colors.ink, fontSize: typeScale.display, fontWeight: '900' },
   resultCard: { gap: spacing.md, padding: spacing.xl, borderRadius: radii.lg },
-  successCard: { backgroundColor: colors.mint },
   failureCard: { backgroundColor: colors.peach },
   resultCode: { color: colors.primaryDark, fontSize: typeScale.caption, fontWeight: '900', letterSpacing: 0.7 },
   body: { color: colors.muted, fontSize: typeScale.bodyLarge, lineHeight: 24 },
-  stock: { color: colors.primaryDark, fontSize: typeScale.title, fontWeight: '900' },
   primaryButton: { alignItems: 'center', padding: spacing.lg, borderRadius: radii.pill, backgroundColor: colors.primary },
   primaryButtonText: { color: colors.white, fontSize: typeScale.bodyLarge, fontWeight: '900' },
   secondaryButton: { alignItems: 'center', padding: spacing.lg, borderRadius: radii.pill, backgroundColor: colors.lavender },

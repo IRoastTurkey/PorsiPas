@@ -4,6 +4,7 @@ import { CameraView, type BarcodeScanningResult, useCameraPermissions } from 'ex
 import { useLocalSearchParams, useRouter } from 'expo-router';
 
 import { AppScreen } from '@/components/app-screen';
+import { LoadingState, PermissionState } from '@/components/states';
 import { colors, radii, spacing, typeScale } from '@/constants/theme';
 import { setLastCollectionAttempt } from '@/features/collections/collection-result-store';
 import { collectionService } from '@/features/food-drops/food-drop-service';
@@ -34,9 +35,10 @@ export default function ScanScreen() {
   if (!permission) {
     return (
       <AppScreen>
-        <Text style={styles.eyebrow}>VERIFIED COLLECTION</Text>
-        <Text style={styles.title}>Preparing the scanner…</Text>
-        <Text style={styles.description}>Checking camera permission on this device.</Text>
+        <LoadingState
+          description="Checking camera permission on this device."
+          title="Preparing the scanner…"
+        />
       </AppScreen>
     );
   }
@@ -44,29 +46,12 @@ export default function ScanScreen() {
   if (!permission.granted) {
     return (
       <AppScreen>
-        <Text style={styles.eyebrow}>CAMERA PERMISSION</Text>
-        <Text style={styles.title}>Scan the host’s pickup QR</Text>
-        <Text style={styles.description}>
-          PorsiPas needs camera access only while this scanner is open. It reads the host’s opaque QR token and sends it to the server for verification.
-        </Text>
-        <View style={styles.permissionCard}>
-          <Text style={styles.permissionTitle}>Camera access is currently off</Text>
-          <Text style={styles.description}>
-            No collection happens until the server validates a scanned QR. PorsiPas does not display or store the token on this screen.
-          </Text>
-        </View>
-        {permission.canAskAgain ? (
-          <Pressable accessibilityRole="button" onPress={() => void requestPermission()} style={styles.primaryButton}>
-            <Text style={styles.primaryButtonText}>Allow camera access</Text>
-          </Pressable>
-        ) : (
-          <Pressable accessibilityRole="button" onPress={() => void Linking.openSettings()} style={styles.primaryButton}>
-            <Text style={styles.primaryButtonText}>Open device settings</Text>
-          </Pressable>
-        )}
-        <Pressable accessibilityRole="button" onPress={() => router.back()} style={styles.secondaryButton}>
-          <Text style={styles.secondaryButtonText}>Cancel and go back</Text>
-        </Pressable>
+        <PermissionState
+          fallbackAction={{ label: 'Cancel and go back', onPress: () => router.back() }}
+          kind="camera"
+          onOpenSettings={permission.canAskAgain ? undefined : () => void Linking.openSettings()}
+          onRequestPermission={permission.canAskAgain ? () => void requestPermission() : undefined}
+        />
       </AppScreen>
     );
   }
@@ -116,13 +101,4 @@ const styles = StyleSheet.create({
   cancelButton: { alignItems: 'center', padding: spacing.md, borderRadius: radii.pill, backgroundColor: colors.surface },
   cancelButtonText: { color: colors.ink, fontWeight: '900' },
   disabledButton: { opacity: 0.5 },
-  eyebrow: { color: colors.primaryDark, fontSize: typeScale.caption, fontWeight: '900', letterSpacing: 1 },
-  title: { color: colors.ink, fontSize: typeScale.display, fontWeight: '900' },
-  description: { color: colors.muted, fontSize: typeScale.bodyLarge, lineHeight: 24 },
-  permissionCard: { gap: spacing.sm, padding: spacing.lg, borderRadius: radii.md, backgroundColor: colors.peach },
-  permissionTitle: { color: colors.ink, fontSize: typeScale.bodyLarge, fontWeight: '900' },
-  primaryButton: { alignItems: 'center', padding: spacing.lg, borderRadius: radii.pill, backgroundColor: colors.primary },
-  primaryButtonText: { color: colors.white, fontSize: typeScale.bodyLarge, fontWeight: '900' },
-  secondaryButton: { alignItems: 'center', padding: spacing.lg, borderRadius: radii.pill, backgroundColor: colors.lavender },
-  secondaryButtonText: { color: colors.ink, fontWeight: '900' },
 });

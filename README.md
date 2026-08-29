@@ -6,7 +6,7 @@ PorsiPas is a standalone campus food-rescue mobile application. Caterers and eve
 
 ## Current status
 
-PorsiPas is an Android-first hackathon prototype for the sustainability challenge. Phases 1–3 provide the Expo foundation, shared Supabase backend, complete host path, live discovery, and verified QR rescue flow. Phase 4 adds retention, private watch zones, and the alert baseline on this integration branch.
+PorsiPas is an Android-first hackathon prototype for the sustainability challenge. Phases 1–5 now form one integrated submission candidate: the Expo foundation, shared Supabase backend, complete host path, live discovery, verified QR rescue, retention, private watch zones, foreground alerts, PorsiPal, meteor-map polish, and resilient user-facing states. The final integrated flow has passed its two-phone physical-device regression.
 
 ## Core flow
 
@@ -48,6 +48,9 @@ V1 intentionally excludes:
 - [Phase 2 implementation and integration handoff](./docs/PHASE_2_HANDOFF.md)
 - [Phase 3 student rescue completion handoff](./handoffs/PHASE_3_COMPLETION_HANDOFF.md)
 - [Phase 4 retention and alerts handoff](./docs/PHASE_4_HANDOFF.md)
+- [Phase 5 completion handoff](./handoffs/PHASE_5_COMPLETION_HANDOFF.md)
+- [Final demo script](./docs/submission/DEMO_SCRIPT.md)
+- [Final submission checklist](./docs/submission/FINAL_SUBMISSION_CHECKLIST.md)
 - [Hackathon challenge brief](./Lifehacks%20sharing_Ecovolt%20Presentation.pdf)
 
 The handoff is the working source of truth for requirements, decisions, acceptance criteria, risks, and unresolved questions.

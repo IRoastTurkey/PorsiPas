@@ -3,6 +3,8 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { AppScreen } from '@/components/app-screen';
+import { FoodDropStatusBadge, resolveFoodDropVisualState } from '@/components/polish';
+import { EmptyState, ErrorState, LoadingState, TerminalFoodDropState } from '@/components/states';
 import { colors, radii, spacing, typeScale } from '@/constants/theme';
 import type { FoodDrop, FoodDropStatus } from '@/domain/types';
 import { foodDropReadService } from '@/features/food-drops/food-drop-service';
@@ -92,17 +94,17 @@ export default function FoodDropDetailScreen() {
   }, [drop]);
 
   if (loading) {
-    return <AppScreen><Text style={styles.message}>Refreshing FoodDrop details…</Text></AppScreen>;
+    return <AppScreen><LoadingState title="Refreshing FoodDrop details…" /></AppScreen>;
   }
 
   if (errorMessage) {
     return (
       <AppScreen>
-        <Text style={styles.title}>Unable to open FoodDrop</Text>
-        <Text style={styles.message}>{errorMessage}</Text>
-        <Pressable accessibilityRole="button" onPress={() => router.back()} style={styles.secondaryButton}>
-          <Text style={styles.secondaryButtonText}>Back to discovery</Text>
-        </Pressable>
+        <ErrorState
+          description={errorMessage}
+          secondaryAction={{ label: 'Back to discovery', onPress: () => router.back() }}
+          title="Unable to open FoodDrop"
+        />
       </AppScreen>
     );
   }
@@ -110,21 +112,32 @@ export default function FoodDropDetailScreen() {
   if (!drop) {
     return (
       <AppScreen>
-        <Text style={styles.title}>FoodDrop unavailable</Text>
-        <Text style={styles.message}>
-          This FoodDrop may have expired, been cancelled, or no longer be visible. Return to discovery for current options.
-        </Text>
-        <Pressable accessibilityRole="button" onPress={() => router.replace('/')} style={styles.secondaryButton}>
-          <Text style={styles.secondaryButtonText}>Back to discovery</Text>
-        </Pressable>
+        <EmptyState
+          description="This FoodDrop may have ended or no longer be visible. Return to discovery for current options."
+          primaryAction={{ label: 'Back to discovery', onPress: () => router.replace('/') }}
+          title="FoodDrop unavailable"
+        />
       </AppScreen>
     );
   }
 
   const status = displayStatus(drop);
+  const visualState = resolveFoodDropVisualState({
+    status,
+    remainingStock: drop.remainingStock,
+    pickupDeadline: drop.pickupDeadline,
+  });
   const collectible = status === 'active' && drop.remainingStock > 0;
   const dietaryTags = drop.dietaryTags.length ? drop.dietaryTags : ['unknown'];
   const allergenNote = drop.allergenNote.trim() || 'Unknown';
+
+  if (visualState === 'depleted' || visualState === 'expired' || visualState === 'cancelled') {
+    return (
+      <AppScreen>
+        <TerminalFoodDropState state={visualState} onBack={() => router.replace('/')} />
+      </AppScreen>
+    );
+  }
 
   return (
     <AppScreen>
@@ -138,14 +151,11 @@ export default function FoodDropDetailScreen() {
         <Text style={styles.venue}>{drop.venueName}{drop.buildingCode ? ` · ${drop.buildingCode}` : ''}</Text>
       </View>
 
-      <View style={[styles.statusCard, !collectible && styles.terminalCard]}>
+      <View style={styles.statusCard}>
+        <FoodDropStatusBadge state={visualState} />
         <Text style={styles.stock}>{Math.max(0, drop.remainingStock)} portions remaining</Text>
-        <Text style={styles.statusText}>Status: {status.toUpperCase()}</Text>
         <Text style={styles.detail}>Pickup deadline: {formatDeadline(drop.pickupDeadline)}</Text>
         <Text style={styles.detail}>{formatDistance(distanceMeters)}</Text>
-        {!collectible ? (
-          <Text style={styles.terminalText}>This FoodDrop is no longer collectible.</Text>
-        ) : null}
       </View>
 
       <View style={styles.section}>
@@ -188,10 +198,7 @@ const styles = StyleSheet.create({
   title: { color: colors.ink, fontSize: typeScale.display, fontWeight: '900' },
   venue: { color: colors.muted, fontSize: typeScale.bodyLarge },
   statusCard: { gap: spacing.xs, padding: spacing.lg, borderRadius: radii.md, backgroundColor: colors.mint },
-  terminalCard: { backgroundColor: colors.peach },
   stock: { color: colors.primaryDark, fontSize: typeScale.title, fontWeight: '900' },
-  statusText: { color: colors.ink, fontSize: typeScale.caption, fontWeight: '900', letterSpacing: 0.7 },
-  terminalText: { color: colors.ink, fontSize: typeScale.body, fontWeight: '900' },
   detail: { color: colors.muted, fontSize: typeScale.body, lineHeight: 22 },
   description: { color: colors.ink, fontSize: typeScale.bodyLarge, lineHeight: 24 },
   section: { gap: spacing.sm },
@@ -200,8 +207,5 @@ const styles = StyleSheet.create({
   button: { alignItems: 'center', padding: spacing.lg, borderRadius: radii.pill, backgroundColor: colors.primary },
   buttonDisabled: { backgroundColor: colors.tabInactive },
   buttonText: { color: colors.white, fontSize: typeScale.bodyLarge, fontWeight: '900' },
-  secondaryButton: { alignItems: 'center', padding: spacing.lg, borderRadius: radii.pill, backgroundColor: colors.lavender },
-  secondaryButtonText: { color: colors.ink, fontWeight: '900' },
-  message: { color: colors.muted, fontSize: typeScale.bodyLarge, lineHeight: 24 },
   realtimeNote: { color: colors.muted, fontSize: typeScale.caption, textAlign: 'center' },
 });

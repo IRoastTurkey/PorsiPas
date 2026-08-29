@@ -1,6 +1,6 @@
 # PorsiPas pitch rationale
 
-Status: working submission draft. Update the implementation-status notes after Phases 3 and 4 are merged and device-tested.
+Status: submission-candidate rationale. Keep final device-test evidence in the Phase 5 completion handoff.
 
 ## One-line pitch
 
@@ -47,9 +47,9 @@ The product does not continuously track a phone in the background. Location is u
 
 ## Current truth boundary
 
-At the start of Phase 5, the anonymous onboarding, host creation flow, photo upload, FoodDrop management, QR generation, and Supabase foundation have been implemented and device-tested in Phase 2. Discovery/collection (Phase 3) and retention/alerts/profile (Phase 4) are being built on separate branches and must not be claimed as complete until merged and tested.
+Phases 1–4 are integrated. Anonymous onboarding, host creation and management, live list/map discovery, physical QR collection, atomic stock updates, daily points, weekly streaks, history, impact, private watch zones, and the running-app alert baseline are implemented. The two-phone host/discover/scan/duplicate path and the Phase 4 watch-zone alert flow have passed physical testing; the final Phase 5 submission candidate still requires its closing regression run.
 
-Push notification behaviour while the app is closed is a desired enhancement, not a hard V1 gate. If the final build only supports in-app or foreground alerting, the demo and spoken pitch must say so plainly.
+Expo Go V1 supports persisted in-app alerts and local notifications while the application is running. Production closed-app remote push requires a development build and push-token service and is explicitly deferred.
 
 ## Closing line
 

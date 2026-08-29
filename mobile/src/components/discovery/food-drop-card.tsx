@@ -1,8 +1,8 @@
 import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
 
-import { FoodDropSummary } from '@/domain/types';
-import { LOW_STOCK_THRESHOLD, NEAR_EXPIRY_MINUTES } from '@/constants/food-drops';
+import { FoodDropStatusBadge, resolveFoodDropVisualState } from '@/components/polish';
 import { colors, radii, spacing, typeScale } from '@/constants/theme';
+import type { FoodDropSummary } from '@/domain/types';
 
 type Props = { drop: FoodDropSummary; onPress: () => void };
 
@@ -29,11 +29,7 @@ function formatDistance(value: number | null) {
 }
 
 export function FoodDropCard({ drop, onPress }: Props) {
-  const lowStock = drop.remainingStock <= LOW_STOCK_THRESHOLD;
-  const minutesRemaining = Math.ceil(
-    (new Date(drop.pickupDeadline).getTime() - Date.now()) / 60_000,
-  );
-  const nearExpiry = minutesRemaining <= NEAR_EXPIRY_MINUTES;
+  const visualState = resolveFoodDropVisualState(drop);
   return (
     <Pressable
       accessibilityRole="button"
@@ -44,14 +40,14 @@ export function FoodDropCard({ drop, onPress }: Props) {
       <View style={styles.content}>
         <View style={styles.titleRow}>
           <Text style={styles.title}>{drop.title}</Text>
-          {lowStock ? <Text accessibilityLabel="Low stock" style={styles.badge}>LOW STOCK</Text> : null}
+          <FoodDropStatusBadge compact state={visualState} />
         </View>
         <Text style={styles.venue}>{drop.venueName}</Text>
         <View style={styles.metaRow}>
           <Text style={styles.meta}>{drop.remainingStock} portions left</Text>
           <Text style={styles.meta}>Pickup by {formatDeadline(drop.pickupDeadline)}</Text>
-          <Text style={nearExpiry ? styles.urgent : styles.meta}>
-            {nearExpiry ? 'ENDING SOON · ' : ''}{timeRemaining(drop.pickupDeadline)}
+          <Text style={visualState === 'near_expiry' ? styles.urgent : styles.meta}>
+            {visualState === 'near_expiry' ? 'ENDING SOON · ' : ''}{timeRemaining(drop.pickupDeadline)}
           </Text>
         </View>
         <Text style={styles.distance}>{formatDistance(drop.distanceMeters)}</Text>
@@ -67,7 +63,6 @@ const styles = StyleSheet.create({
   content: { flex: 1, gap: spacing.xs },
   titleRow: { flexDirection: 'row', alignItems: 'flex-start', gap: spacing.sm },
   title: { flex: 1, color: colors.ink, fontSize: typeScale.bodyLarge, fontWeight: '900' },
-  badge: { color: colors.primaryDark, fontSize: 10, fontWeight: '900' },
   venue: { color: colors.muted, fontSize: typeScale.body },
   metaRow: { gap: 2 },
   meta: { color: colors.ink, fontSize: typeScale.caption, fontWeight: '700' },
