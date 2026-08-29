@@ -1,160 +1,220 @@
-import { useEffect, useState } from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { useCallback, useState } from 'react';
+import { Linking, Pressable, StyleSheet, Text, View } from 'react-native';
+import { useFocusEffect, useRouter } from 'expo-router';
 import MapView, { Marker } from 'react-native-maps';
-import { useRouter } from 'expo-router';
 
 import { AppScreen } from '@/components/app-screen';
-import { FeatureCard } from '@/components/feature-card';
-import { PageHeader } from '@/components/page-header';
-import { StatTile } from '@/components/stat-tile';
-import { colors, radii, spacing, typeScale } from '@/constants/theme';
-import { FoodDropSummary } from '@/domain/types';
 import { FoodDropCard } from '@/components/discovery/food-drop-card';
-import { mockFoodDropReadService } from '@/services/food-drops/mock-service';
+import { PageHeader } from '@/components/page-header';
+import { DEFAULT_CAMPUS_REGION } from '@/constants/food-drops';
+import { colors, radii, spacing, typeScale } from '@/constants/theme';
+import type { FoodDropSummary } from '@/domain/types';
+import { foodDropReadService } from '@/features/food-drops/food-drop-service';
+import {
+  getApprovedForegroundOrigin,
+  requestForegroundOrigin,
+  type LocationPoint,
+} from '@/services/location/foreground-location';
+
+type LocationState = 'idle' | 'loading' | 'granted' | 'denied' | 'blocked' | 'unavailable';
 
 export default function DiscoverScreen() {
   const router = useRouter();
   const [view, setView] = useState<'list' | 'map'>('list');
   const [drops, setDrops] = useState<FoodDropSummary[]>([]);
+  const [origin, setOrigin] = useState<LocationPoint | null>(getApprovedForegroundOrigin());
+  const [locationState, setLocationState] = useState<LocationState>(origin ? 'granted' : 'idle');
+  const [locationMessage, setLocationMessage] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-  useEffect(() => {
-    void mockFoodDropReadService.listActive({}).then(setDrops);
+  const loadDrops = useCallback(async (nextOrigin: LocationPoint | null) => {
+    setLoading(true);
+    setErrorMessage(null);
+    try {
+      const results = await foodDropReadService.listActive({
+        origin: nextOrigin ?? undefined,
+      });
+      setDrops(results);
+    } catch {
+      setErrorMessage('FoodDrops could not be loaded. Check your connection and try again.');
+    } finally {
+      setLoading(false);
+    }
   }, []);
+
+  useFocusEffect(
+    useCallback(() => {
+      void loadDrops(origin);
+    }, [loadDrops, origin]),
+  );
+
+  const enableLocation = useCallback(async () => {
+    setLocationState('loading');
+    setLocationMessage(null);
+    const result = await requestForegroundOrigin();
+    if (result.status === 'granted') {
+      setOrigin(result.origin);
+      setLocationState('granted');
+      return;
+    }
+    if (result.status === 'denied') {
+      setLocationState(result.canAskAgain ? 'denied' : 'blocked');
+      setLocationMessage(
+        result.canAskAgain
+          ? 'Location was denied. Discovery still works with the default campus view.'
+          : 'Location is blocked in system settings. Discovery still works with the default campus view.',
+      );
+      return;
+    }
+    setLocationState('unavailable');
+    setLocationMessage(result.message);
+  }, []);
+
+  const openDrop = (id: string) => router.push(`/food-drop/${id}`);
 
   return (
     <AppScreen>
       <PageHeader
         eyebrow="PorsiPas"
         title="Catch a FoodDrop"
-        description="Find surplus meals nearby before they disappear. Every rescue keeps good food out of the bin."
+        description="Find live surplus meals nearby before their pickup windows close."
       />
 
-      <View style={styles.hero}>
-        <View style={styles.meteorBubble}>
-          <Text style={styles.meteor}>☄️</Text>
+      <View style={styles.locationCard}>
+        <View style={styles.locationCopy}>
+          <Text style={styles.locationTitle}>
+            {origin ? 'Nearest-first discovery is on' : 'Browse without sharing your location'}
+          </Text>
+          <Text style={styles.locationDescription}>
+            {origin
+              ? 'Your foreground location is used only on this device to calculate approximate distance.'
+              : 'Use the default campus view, or allow foreground location for distance sorting.'}
+          </Text>
+          {locationMessage ? <Text style={styles.locationMessage}>{locationMessage}</Text> : null}
         </View>
-        <View style={styles.heroCopy}>
-          <Text style={styles.heroEyebrow}>DISCOVER</Text>
-          <Text style={styles.heroTitle}>The map is preparing for impact.</Text>
-          <Text style={styles.heroDescription}>
-            Live data will replace this clearly labelled development preview when Phase 2 services are merged.
+        <Pressable
+          accessibilityRole="button"
+          disabled={locationState === 'loading'}
+          onPress={() => void enableLocation()}
+          style={styles.smallButton}>
+          <Text style={styles.smallButtonText}>
+            {locationState === 'loading' ? 'Locating…' : origin ? 'Refresh location' : 'Use my location'}
+          </Text>
+        </Pressable>
+        {locationState === 'blocked' ? (
+          <Pressable accessibilityRole="button" onPress={() => void Linking.openSettings()}>
+            <Text style={styles.settingsLink}>Open device settings</Text>
+          </Pressable>
+        ) : null}
+      </View>
+
+      <View style={styles.toolbar}>
+        <View style={styles.switcher}>
+          {(['list', 'map'] as const).map((option) => (
+            <Pressable
+              accessibilityRole="button"
+              key={option}
+              onPress={() => setView(option)}
+              style={[styles.switchButton, view === option && styles.switchButtonActive]}>
+              <Text style={[styles.switchText, view === option && styles.switchTextActive]}>
+                {option === 'list' ? 'List' : 'Map'}
+              </Text>
+            </Pressable>
+          ))}
+        </View>
+        <Pressable accessibilityRole="button" onPress={() => void loadDrops(origin)}>
+          <Text style={styles.refreshText}>Refresh</Text>
+        </Pressable>
+      </View>
+
+      {loading && drops.length === 0 ? (
+        <View style={styles.stateCard}>
+          <Text style={styles.stateTitle}>Looking for active FoodDrops…</Text>
+        </View>
+      ) : null}
+
+      {errorMessage ? (
+        <View style={styles.errorCard}>
+          <Text style={styles.stateTitle}>Unable to load discovery</Text>
+          <Text style={styles.stateDescription}>{errorMessage}</Text>
+          <Pressable accessibilityRole="button" onPress={() => void loadDrops(origin)}>
+            <Text style={styles.retryText}>Try again</Text>
+          </Pressable>
+        </View>
+      ) : null}
+
+      {!loading && !errorMessage && drops.length === 0 ? (
+        <View style={styles.stateCard}>
+          <Text style={styles.stateTitle}>No active FoodDrops right now</Text>
+          <Text style={styles.stateDescription}>
+            There are no unexpired drops with portions remaining. Check again soon.
           </Text>
         </View>
-      </View>
+      ) : null}
 
-      <View style={styles.switcher}>
-        {(['list', 'map'] as const).map((option) => (
-          <Pressable key={option} onPress={() => setView(option)} style={[styles.switchButton, view === option && styles.switchButtonActive]}>
-            <Text style={[styles.switchText, view === option && styles.switchTextActive]}>{option === 'list' ? 'List' : 'Map'}</Text>
-          </Pressable>
-        ))}
-      </View>
-
-      <Text style={styles.mockNotice}>DEVELOPMENT PREVIEW · MOCK FOODDROPS</Text>
-      {view === 'map' ? (
+      {!errorMessage && drops.length > 0 && view === 'map' ? (
         <MapView
-          style={styles.map}
-          initialRegion={{ latitude: 1.2974, longitude: 103.7762, latitudeDelta: 0.006, longitudeDelta: 0.006 }}
-          accessibilityLabel="FoodDrop map">
+          key={origin ? `${origin.latitude}:${origin.longitude}` : 'campus'}
+          accessibilityLabel="Map of active FoodDrops"
+          initialRegion={
+            origin
+              ? { ...origin, latitudeDelta: 0.012, longitudeDelta: 0.012 }
+              : DEFAULT_CAMPUS_REGION
+          }
+          showsUserLocation={Boolean(origin)}
+          style={styles.map}>
           {drops.map((drop) => (
-            <Marker key={drop.id} coordinate={{ latitude: drop.latitude, longitude: drop.longitude }} title={drop.title} description={`${drop.remainingStock} portions left`} onCalloutPress={() => router.push(`/food-drop/${drop.id}`)} />
+            <Marker
+              key={drop.id}
+              coordinate={{ latitude: drop.latitude, longitude: drop.longitude }}
+              description={`${drop.remainingStock} portions left`}
+              onCalloutPress={() => openDrop(drop.id)}
+              title={drop.title}
+            />
           ))}
         </MapView>
-      ) : (
+      ) : null}
+
+      {!errorMessage && drops.length > 0 && view === 'list' ? (
         <View style={styles.dropList}>
-          {drops.map((drop) => <FoodDropCard key={drop.id} drop={drop} onPress={() => router.push(`/food-drop/${drop.id}`)} />)}
+          {drops.map((drop) => (
+            <FoodDropCard key={drop.id} drop={drop} onPress={() => openDrop(drop.id)} />
+          ))}
         </View>
-      )}
+      ) : null}
 
-      <View style={styles.statsRow}>
-        <StatTile label="Active drops" value="0" />
-        <StatTile label="Alert radius" value="Adjustable" />
-      </View>
-
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Built for a fast rescue</Text>
-        <FeatureCard
-          icon="📍"
-          title="Nearest first"
-          description="Open the app to refresh your location and sort available meals by distance."
-          tone="mint"
-        />
-        <FeatureCard
-          icon="🥡"
-          title="Live availability"
-          description="See remaining portions and the pickup deadline before making the trip."
-          tone="peach"
-        />
-        <FeatureCard
-          icon="✓"
-          title="Verified rescue"
-          description="Scan the FoodDrop QR code on site to claim one portion and update stock."
-          tone="lavender"
-        />
-      </View>
+      {drops.length > 0 ? (
+        <Text style={styles.summary}>
+          {drops.length} collectible FoodDrop{drops.length === 1 ? '' : 's'}
+        </Text>
+      ) : null}
     </AppScreen>
   );
 }
 
 const styles = StyleSheet.create({
-  hero: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.lg,
-    padding: spacing.xl,
-    borderRadius: radii.lg,
-    backgroundColor: colors.meteor,
-  },
-  meteorBubble: {
-    width: 68,
-    height: 68,
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderRadius: radii.pill,
-    backgroundColor: 'rgba(255, 255, 255, 0.16)',
-  },
-  meteor: {
-    fontSize: 36,
-  },
-  heroCopy: {
-    flex: 1,
-    gap: spacing.xs,
-  },
-  heroEyebrow: {
-    color: colors.peach,
-    fontSize: typeScale.caption,
-    fontWeight: '900',
-    letterSpacing: 1,
-  },
-  heroTitle: {
-    color: colors.white,
-    fontSize: typeScale.title,
-    fontWeight: '900',
-    lineHeight: 29,
-  },
-  heroDescription: {
-    color: 'rgba(255, 255, 255, 0.82)',
-    fontSize: typeScale.body,
-    lineHeight: 21,
-  },
-  statsRow: {
-    flexDirection: 'row',
-    gap: spacing.md,
-  },
-  section: {
-    gap: spacing.md,
-  },
-  sectionTitle: {
-    color: colors.ink,
-    fontSize: typeScale.bodyLarge,
-    fontWeight: '900',
-  },
-  switcher: { flexDirection: 'row', padding: 4, borderRadius: radii.pill, backgroundColor: colors.mint },
+  locationCard: { gap: spacing.md, padding: spacing.lg, borderRadius: radii.md, backgroundColor: colors.mint },
+  locationCopy: { gap: spacing.xs },
+  locationTitle: { color: colors.ink, fontSize: typeScale.bodyLarge, fontWeight: '900' },
+  locationDescription: { color: colors.muted, fontSize: typeScale.body, lineHeight: 21 },
+  locationMessage: { color: colors.primaryDark, fontSize: typeScale.caption, fontWeight: '800', lineHeight: 18 },
+  smallButton: { alignSelf: 'flex-start', paddingHorizontal: spacing.lg, paddingVertical: spacing.sm, borderRadius: radii.pill, backgroundColor: colors.primary },
+  smallButtonText: { color: colors.white, fontWeight: '900' },
+  settingsLink: { color: colors.primaryDark, fontWeight: '900', textDecorationLine: 'underline' },
+  toolbar: { flexDirection: 'row', alignItems: 'center', gap: spacing.md },
+  switcher: { flex: 1, flexDirection: 'row', padding: 4, borderRadius: radii.pill, backgroundColor: colors.mint },
   switchButton: { flex: 1, alignItems: 'center', paddingVertical: spacing.sm, borderRadius: radii.pill },
   switchButtonActive: { backgroundColor: colors.surface },
   switchText: { color: colors.muted, fontWeight: '800' },
   switchTextActive: { color: colors.primaryDark },
-  mockNotice: { color: colors.muted, fontSize: typeScale.caption, fontWeight: '900', letterSpacing: 0.8 },
+  refreshText: { color: colors.primaryDark, fontWeight: '900' },
+  stateCard: { gap: spacing.sm, padding: spacing.xl, borderWidth: 1, borderColor: colors.border, borderRadius: radii.md, backgroundColor: colors.surface },
+  errorCard: { gap: spacing.sm, padding: spacing.xl, borderRadius: radii.md, backgroundColor: colors.peach },
+  stateTitle: { color: colors.ink, fontSize: typeScale.bodyLarge, fontWeight: '900' },
+  stateDescription: { color: colors.muted, fontSize: typeScale.body, lineHeight: 21 },
+  retryText: { color: colors.primaryDark, fontWeight: '900', textDecorationLine: 'underline' },
   dropList: { gap: spacing.md },
-  map: { height: 320, borderRadius: radii.md },
+  map: { height: 360, borderRadius: radii.md },
+  summary: { color: colors.muted, fontSize: typeScale.caption, textAlign: 'center' },
 });

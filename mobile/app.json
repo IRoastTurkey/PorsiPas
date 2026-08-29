@@ -21,7 +21,15 @@
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
       },
       "edgeToEdgeEnabled": true,
-      "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": false,
+      "permissions": [
+        "android.permission.ACCESS_COARSE_LOCATION",
+        "android.permission.ACCESS_FINE_LOCATION",
+        "android.permission.CAMERA",
+        "android.permission.ACCESS_COARSE_LOCATION",
+        "android.permission.ACCESS_FINE_LOCATION",
+        "android.permission.CAMERA"
+      ]
     },
     "web": {
       "output": "static",
@@ -46,13 +54,33 @@
       [
         "expo-location",
         {
-          "locationWhenInUsePermission": "Allow PorsiPas to set the FoodDrop pickup point while the app is open."
+          "locationWhenInUsePermission": "Allow PorsiPas to calculate FoodDrop distances or set a pickup point while the app is open."
+        }
+      ],
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "Allow PorsiPas to scan a host's pickup QR for verified collection.",
+          "recordAudioAndroid": false
         }
       ]
     ],
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "23a66c63-c319-4746-855c-84ff039f55f6"
+      }
+    },
+    "owner": "jesslynsong",
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/23a66c63-c319-4746-855c-84ff039f55f6"
     }
   }
 }
