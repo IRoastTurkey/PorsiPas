@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { ActivityIndicator, KeyboardAvoidingView, Platform, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { PorsiPal } from '@/components/polish';
 import { colors, radii, spacing, typeScale } from '@/constants/theme';
 import { useAuth } from '@/features/auth/auth-provider';
 
@@ -29,7 +30,7 @@ export default function OnboardingScreen() {
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
         style={styles.keyboardView}>
         <View style={styles.content}>
-          <Text style={styles.meteor}>☄️</Text>
+          <PorsiPal size={112} style={styles.mascot} />
           <Text style={styles.eyebrow}>WELCOME TO PORSIPAS</Text>
           <Text style={styles.title}>What should rescuers call you?</Text>
           <Text style={styles.description}>
@@ -73,7 +74,7 @@ const styles = StyleSheet.create({
   safeArea: { flex: 1, backgroundColor: colors.background },
   keyboardView: { flex: 1, justifyContent: 'center' },
   content: { gap: spacing.lg, padding: spacing.xl },
-  meteor: { fontSize: 52 },
+  mascot: { alignSelf: 'center' },
   eyebrow: {
     color: colors.primary,
     fontSize: typeScale.caption,

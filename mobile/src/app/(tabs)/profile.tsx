@@ -6,6 +6,7 @@ import { Linking, Pressable, StyleSheet, Switch, Text, View } from 'react-native
 import { AppScreen } from '@/components/app-screen';
 import { PageHeader } from '@/components/page-header';
 import { StatTile } from '@/components/stat-tile';
+import { ErrorState, LoadingState } from '@/components/states';
 import { colors, radii, spacing, typeScale } from '@/constants/theme';
 import type { AlertDelivery, CollectionRecord, UserProfile, WatchZone } from '@/domain/types';
 import {
@@ -222,17 +223,18 @@ export default function ProfileScreen() {
       />
 
       {status === 'loading' ? (
-        <View style={styles.messageCard}>
-          <Text style={styles.cardTitle}>Loading your verified impact…</Text>
-        </View>
+        <LoadingState
+          description="Checking your points, streak, watch area, alerts, and rescue history."
+          title="Loading your verified impact…"
+        />
       ) : null}
 
       {status === 'error' ? (
-        <View style={styles.errorCard}>
-          <Text style={styles.cardTitle}>We could not load your profile</Text>
-          <Text style={styles.muted}>{notice}</Text>
-          <ActionButton label="Try again" onPress={() => void load()} />
-        </View>
+        <ErrorState
+          description={notice ?? 'Your verified impact could not be loaded.'}
+          onRetry={() => void load()}
+          title="We could not load your profile"
+        />
       ) : null}
 
       {profile ? (
@@ -518,6 +520,4 @@ const styles = StyleSheet.create({
   historyTitle: { color: colors.ink, fontSize: typeScale.body, fontWeight: '800' },
   points: { color: colors.primary, fontSize: typeScale.body, fontWeight: '900' },
   openLabel: { color: colors.primaryDark, fontSize: typeScale.caption, fontWeight: '900' },
-  messageCard: { padding: spacing.xl, borderRadius: radii.md, backgroundColor: colors.surface },
-  errorCard: { gap: spacing.md, padding: spacing.lg, borderRadius: radii.md, backgroundColor: colors.peach },
 });
