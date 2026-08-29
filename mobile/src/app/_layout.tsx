@@ -1,6 +1,7 @@
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 
+import { AlertProvider } from '@/features/alerts/alert-provider';
 import { AuthProvider, useAuth } from '@/features/auth/auth-provider';
 import { AuthStateScreen } from '@/features/auth/auth-state-screen';
 
@@ -20,6 +21,9 @@ function RootNavigator() {
       </Stack.Protected>
       <Stack.Protected guard={status === 'ready'}>
         <Stack.Screen name="(tabs)" />
+        <Stack.Screen name="food-drop/[id]" />
+        <Stack.Screen name="scan" />
+        <Stack.Screen name="rescue-result" />
         <Stack.Screen name="host/food-drop/[id]" />
         <Stack.Screen name="host/food-drop/[id]/qr" />
       </Stack.Protected>
@@ -30,8 +34,10 @@ function RootNavigator() {
 export default function RootLayout() {
   return (
     <AuthProvider>
-      <StatusBar style="dark" />
-      <RootNavigator />
+      <AlertProvider>
+        <StatusBar style="dark" />
+        <RootNavigator />
+      </AlertProvider>
     </AuthProvider>
   );
 }
