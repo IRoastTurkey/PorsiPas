@@ -22,6 +22,7 @@ function RootNavigator() {
       <Stack.Protected guard={status === 'ready'}>
         <Stack.Screen name="(tabs)" />
         <Stack.Screen name="food-drop/[id]" />
+        <Stack.Screen name="how-it-works" />
         <Stack.Screen name="scan" />
         <Stack.Screen name="rescue-result" />
         <Stack.Screen name="host/food-drop/[id]" />

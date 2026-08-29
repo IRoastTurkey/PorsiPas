@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { GentleAppear } from '@/components/polish/gentle-appear';
@@ -8,11 +9,28 @@ import type { CollectFoodDropResult } from '@/domain/types';
 type RescueSuccessProps = {
   result: CollectFoodDropResult;
   onDone: () => void;
+  onShare?: () => Promise<void>;
   onViewProfile?: () => void;
 };
 
-export function RescueSuccess({ result, onDone, onViewProfile }: RescueSuccessProps) {
+export function RescueSuccess({ result, onDone, onShare, onViewProfile }: RescueSuccessProps) {
+  const [sharing, setSharing] = useState(false);
+  const [shareError, setShareError] = useState<string | null>(null);
+
   if (result.code !== 'success') return null;
+
+  async function share() {
+    if (!onShare) return;
+    try {
+      setSharing(true);
+      setShareError(null);
+      await onShare();
+    } catch {
+      setShareError('The share sheet could not be opened. Your rescue is still safely recorded.');
+    } finally {
+      setSharing(false);
+    }
+  }
 
   return (
     <GentleAppear style={styles.card}>
@@ -43,6 +61,19 @@ export function RescueSuccess({ result, onDone, onViewProfile }: RescueSuccessPr
           {result.currentStreak !== null ? <Text style={styles.reward}>🔥 Week {result.currentStreak}</Text> : null}
         </View>
       ) : null}
+
+      {onShare ? (
+        <Pressable
+          accessibilityHint="Shares a privacy-safe message without a FoodDrop location or QR code"
+          accessibilityRole="button"
+          accessibilityState={{ disabled: sharing }}
+          disabled={sharing}
+          onPress={() => void share()}
+          style={({ pressed }) => [styles.shareButton, pressed && styles.pressed]}>
+          <Text style={styles.shareText}>{sharing ? 'Opening share sheet…' : 'Share this rescue'}</Text>
+        </Pressable>
+      ) : null}
+      {shareError ? <Text accessibilityLiveRegion="polite" style={styles.shareError}>{shareError}</Text> : null}
 
       <Pressable accessibilityRole="button" onPress={onDone} style={styles.primaryButton}>
         <Text style={styles.primaryText}>Find another FoodDrop</Text>
@@ -78,6 +109,10 @@ const styles = StyleSheet.create({
   statLabel: { color: colors.muted, fontSize: typeScale.caption, fontWeight: '700', textAlign: 'center' },
   rewardRow: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', gap: spacing.sm },
   reward: { color: colors.meteor, fontSize: typeScale.body, fontWeight: '900' },
+  shareButton: { width: '100%', minHeight: 50, alignItems: 'center', justifyContent: 'center', borderRadius: radii.pill, backgroundColor: colors.lavender },
+  shareText: { color: colors.meteor, fontSize: typeScale.body, fontWeight: '900' },
+  shareError: { color: '#A33A35', fontSize: typeScale.caption, lineHeight: 18, textAlign: 'center' },
+  pressed: { opacity: 0.78 },
   primaryButton: { width: '100%', minHeight: 54, alignItems: 'center', justifyContent: 'center', borderRadius: radii.pill, backgroundColor: colors.primary },
   primaryText: { color: colors.white, fontSize: typeScale.bodyLarge, fontWeight: '900' },
   secondaryButton: { width: '100%', minHeight: 50, alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: colors.primary, borderRadius: radii.pill },

@@ -1,14 +1,17 @@
 import { useCallback, useState } from 'react';
 import * as ExpoLinking from 'expo-linking';
-import { useFocusEffect } from 'expo-router';
+import { useFocusEffect, useRouter } from 'expo-router';
 import { Linking, Pressable, StyleSheet, Switch, Text, View } from 'react-native';
 
 import { AppScreen } from '@/components/app-screen';
+import { RescueJourneyCard } from '@/components/engagement';
 import { PageHeader } from '@/components/page-header';
 import { StatTile } from '@/components/stat-tile';
 import { ErrorState, LoadingState } from '@/components/states';
 import { colors, radii, spacing, typeScale } from '@/constants/theme';
 import type { AlertDelivery, CollectionRecord, UserProfile, WatchZone } from '@/domain/types';
+import { getRescueRank } from '@/features/engagement/progression';
+import { shareRescueProgress } from '@/features/engagement/share-rescue';
 import {
   getNotificationPermission,
   requestNotificationPermission,
@@ -40,6 +43,7 @@ function errorMessage(error: unknown) {
 }
 
 export default function ProfileScreen() {
+  const router = useRouter();
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [watchZone, setWatchZone] = useState<WatchZone | null>(null);
   const [history, setHistory] = useState<CollectionRecord[]>([]);
@@ -214,6 +218,21 @@ export default function ProfileScreen() {
     await ExpoLinking.openURL(ExpoLinking.createURL(`/food-drop/${alert.foodDropId}`));
   }
 
+  async function shareProgress() {
+    if (!profile) return;
+    setNotice(null);
+    try {
+      await shareRescueProgress({
+        displayName: profile.displayName,
+        mealsRescued: meals.userMealsRescued,
+        rankName: getRescueRank(meals.userMealsRescued).name,
+        currentStreak: profile.currentStreak,
+      });
+    } catch (error) {
+      setNotice(errorMessage(error));
+    }
+  }
+
   return (
     <AppScreen>
       <PageHeader
@@ -253,6 +272,13 @@ export default function ProfileScreen() {
             <StatTile label="Rescue points" value={String(profile.pointsTotal)} />
             <StatTile label="Week streak" value={`${profile.currentStreak} weeks`} />
           </View>
+
+          <RescueJourneyCard
+            currentStreak={profile.currentStreak}
+            history={history}
+            onShare={() => void shareProgress()}
+            totalRescues={meals.userMealsRescued}
+          />
 
           <View style={styles.card}>
             <View style={styles.row}>
@@ -398,6 +424,11 @@ export default function ProfileScreen() {
             )}
           </View>
 
+          <ActionButton
+            label="How PorsiPas works"
+            onPress={() => router.push('/how-it-works')}
+            secondary
+          />
           <ActionButton label="Refresh profile" onPress={() => void load()} secondary />
         </>
       ) : null}

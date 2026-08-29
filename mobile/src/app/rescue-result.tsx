@@ -7,6 +7,7 @@ import { RescueSuccess } from '@/components/polish';
 import { EmptyState, OfflineState } from '@/components/states';
 import { colors, radii, spacing, typeScale } from '@/constants/theme';
 import type { CollectionResultCode } from '@/domain/types';
+import { shareVerifiedRescue } from '@/features/engagement/share-rescue';
 import {
   clearLastCollectionAttempt,
   getLastCollectionAttempt,
@@ -88,6 +89,7 @@ export default function RescueResultScreen() {
       <AppScreen>
         <RescueSuccess
           onDone={() => leaveFor('discovery')}
+          onShare={() => shareVerifiedRescue(result)}
           onViewProfile={() => {
             clearLastCollectionAttempt();
             router.replace('/profile');

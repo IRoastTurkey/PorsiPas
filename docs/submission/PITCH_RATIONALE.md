@@ -1,6 +1,6 @@
 # PorsiPas pitch rationale
 
-Status: submission-candidate rationale. Keep final device-test evidence in the Phase 5 completion handoff.
+Status: device-validated Phase 6–8 candidate rationale. Final evidence is recorded in the combined completion handoff.
 
 ## One-line pitch
 
@@ -22,7 +22,8 @@ NUS's existing “buffet response” Telegram workflow is qualitative evidence t
 2. A rescuer discovers an active FoodDrop on the map or list and checks its live stock and pickup details.
 3. At the pickup point, the rescuer scans the FoodDrop QR code.
 4. The backend atomically confirms at most one portion for that request and returns the authoritative remaining stock.
-5. Only a server-confirmed success triggers points, streak progress, impact totals, and the PorsiPal celebration.
+5. Only a server-confirmed success triggers points, streak progress, impact totals, the PorsiPal celebration, weekly mission progress, ranks, and badges.
+6. A rescuer may open the phone's native share sheet with a privacy-safe rescue message; the app never includes a pickup location, account identifier, or QR payload. Profile sharing may include the user's chosen display name.
 
 The product does not continuously track a phone in the background. Location is used while the app is open to help sort nearby FoodDrops. Exact user locations are not shown to other users.
 
@@ -30,10 +31,10 @@ The product does not continuously track a phone in the background. Location is u
 
 | Category | Weight | Product response | Evidence to show judges |
 |---|---:|---|---|
-| Fun and engagement | 40% | FoodDrops land as meteorites; urgency is readable; PorsiPal, points, and a restrained success moment reward a real rescue. | Show the meteor map marker, low-stock/ending-soon states, and the server-confirmed rescue celebration. |
+| Fun and engagement | 40% | FoodDrops land as meteorites; PorsiPal turns verified rescues into cosmic ranks, a weekly mission, and unlockable badges; a privacy-safe share moment makes the rescue tellable. | Show the meteor marker, server-confirmed celebration, PorsiPal Cosmic Journey, one unlocked badge, and the native share sheet. |
 | Behaviour change | 20% | The unit of progress is a QR-verified collected portion. Live stock makes the sustainable action concrete for host and rescuer. | Create a drop, scan once, and show stock fall by exactly one. Explain that an error or duplicate never shows success. |
-| Stickiness | 20% | Live campus supply, optional nearby alerts, weekly streaks, history, and impact create reasons to return without punishing users for days when no food is available. | Show notification preferences only if implemented; then show weekly streak/history/profile after a verified collection. |
-| Craft and usability | 20% | One app supports both roles; posting is compact; permission, offline, empty, and terminal states explain the next safe action; reduced-motion settings are respected. | Complete the main path on a physical phone and deliberately show one recovery state if time permits. |
+| Stickiness | 20% | Live campus supply, nearby alerts, a three-rescue weekly mission, daily first-rescue status, ranks, badges, history, and impact create reasons to return without punishing users for days when no food is available. | Show the mission moving only after collection, the next-rank progress, and the private watch-zone controls. |
+| Craft and usability | 20% | One app supports both roles; posting is compact; a 30-second tour explains the loop; permission, offline, empty, and terminal states explain the next safe action; reduced-motion settings are respected. | Complete the main path on a physical phone, open the judge tour, and deliberately show one recovery state if time permits. |
 
 ## Responsible design choices
 
@@ -43,11 +44,13 @@ The product does not continuously track a phone in the background. Location is u
 - “Ending soon” is a presentation label for an active drop with 20 minutes or less before its deadline. It does not mutate backend status.
 - “Low stock” means three portions or fewer remain. Terminal states always take precedence.
 - PorsiPas records meals rescued, not kilograms of food or carbon avoided. Those conversions require evidence the V1 does not collect.
+- Ranks, badges, and weekly missions are views over server-verified collection history. They do not create rewards or modify stock.
+- Native sharing contains only a generic rescue message or the user's chosen display name, verified meal count, rank, and streak. It never contains coordinates or QR material.
 - Hosts remain responsible for food safety, accurate descriptions, and pickup conditions. PorsiPas is a coordination tool, not a food-safety certification.
 
 ## Current truth boundary
 
-Phases 1–4 are integrated. Anonymous onboarding, host creation and management, live list/map discovery, physical QR collection, atomic stock updates, daily points, weekly streaks, history, impact, private watch zones, and the running-app alert baseline are implemented. The two-phone host/discover/scan/duplicate path and the Phase 4 watch-zone alert flow have passed physical testing; the final Phase 5 submission candidate still requires its closing regression run.
+Phases 1–5 are merged and device-validated. Anonymous onboarding, host creation and management, live list/map discovery, physical QR collection, atomic stock updates, daily points, weekly streaks, history, impact, private watch zones, the running-app alert baseline, PorsiPal, and resilient states are implemented. The device-validated Phase 6–8 branch adds derived progression, privacy-safe sharing, and the judge tour without a backend migration or collection-contract change.
 
 Expo Go V1 supports persisted in-app alerts and local notifications while the application is running. Production closed-app remote push requires a development build and push-token service and is explicitly deferred.
 

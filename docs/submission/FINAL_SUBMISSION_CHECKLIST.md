@@ -9,6 +9,8 @@ Do not tick an item because its code exists. Tick it only after the stated build
 - [x] Phase 5 contains the Phase 4-integrated `main` before editing active screens.
 - [x] Integration-contract deviations are documented and resolved deliberately.
 - [x] `git status` contains only the intended Phase 5 integration changes.
+- [x] Phase 6–8 begins from the device-validated Phase 5 merge on `main`.
+- [x] Phase 6–8 requires no Supabase migration and does not alter collection authority.
 
 ## Build and automated checks
 
@@ -56,6 +58,23 @@ Do not tick an item because its code exists. Tick it only after the stated build
 - [ ] Reduce Motion disables non-essential Phase 5 entrance/spring animations.
 - [ ] TalkBack or VoiceOver smoke test in `ACCESSIBILITY_QA.md` is completed.
 - [ ] Larger device text does not hide critical actions or stock/status text.
+
+## Phase 6–8 engagement regression
+
+- [x] Phase 6–8 TypeScript and lint checks pass.
+- [x] Deterministic engagement verifier passes Singapore-day/week, rank, mission, and badge boundaries.
+- [x] Existing backend suites still pass 12/12 core checks and 15/15 retention groups.
+- [x] Expo Doctor passes 18/18 and a fresh Android export includes the new route.
+- [x] Profile shows the correct PorsiPal rank for the server-verified meal total.
+- [x] Weekly mission count matches collection history for Monday–Sunday in Asia/Singapore.
+- [x] Daily bonus says secured only when today's verified collection awarded points.
+- [x] Locked and unlocked badges are announced with text, not colour alone.
+- [x] A successful collection exposes **Share this rescue** and opens the native share sheet.
+- [x] Profile sharing contains rank, verified meal total, and streak only.
+- [x] Neither share path contains a venue, coordinates, FoodDrop ID, QR payload, or private alert data.
+- [x] Cancelling sharing does not change points, stock, history, mission, or rescue success.
+- [x] The 30-second tour is reachable from Discover and Profile and returns without trapping navigation.
+- [x] Tour wording accurately describes verification, foreground location, alert limits, and food responsibility.
 
 ## Demo and claims
 
