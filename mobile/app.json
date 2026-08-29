@@ -51,7 +51,7 @@
       [
         "expo-location",
         {
-          "locationWhenInUsePermission": "Allow PorsiPas to calculate FoodDrop distances or set a pickup point while the app is open."
+          "locationWhenInUsePermission": "Allow PorsiPas to find nearby FoodDrops, set pickup points, or save a watch area while the app is open."
         }
       ],
       [
@@ -60,7 +60,8 @@
           "cameraPermission": "Allow PorsiPas to scan a host's pickup QR for verified collection.",
           "recordAudioAndroid": false
         }
-      ]
+      ],
+      "expo-notifications"
     ],
     "experiments": {
       "typedRoutes": true,

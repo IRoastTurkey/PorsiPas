@@ -5,10 +5,30 @@ export type LocationPoint = {
   longitude: number;
 };
 
+export type ForegroundPoint = LocationPoint & {
+  label: string;
+};
+
 export type ForegroundLocationResult =
   | { status: 'granted'; origin: LocationPoint }
   | { status: 'denied'; canAskAgain: boolean }
   | { status: 'unavailable'; message: string };
+
+export type ForegroundPointResult =
+  | { status: 'granted'; point: ForegroundPoint }
+  | { status: 'denied'; canAskAgain: boolean }
+  | { status: 'unavailable'; message: string };
+
+type CoordinateResult =
+  | { status: 'granted'; point: LocationPoint }
+  | { status: 'denied'; canAskAgain: boolean }
+  | { status: 'unavailable'; message: string };
+
+export const NUS_CAMPUS_FALLBACK: ForegroundPoint = {
+  latitude: 1.2966,
+  longitude: 103.7764,
+  label: 'NUS campus centre',
+};
 
 let approvedOrigin: LocationPoint | null = null;
 
@@ -29,9 +49,12 @@ export function distanceBetweenMeters(first: LocationPoint, second: LocationPoin
   return Math.round(2 * earthRadiusMeters * Math.asin(Math.sqrt(haversine)));
 }
 
-export async function requestForegroundOrigin(): Promise<ForegroundLocationResult> {
+async function requestCoordinates(): Promise<CoordinateResult> {
   try {
-    const permission = await Location.requestForegroundPermissionsAsync();
+    let permission = await Location.getForegroundPermissionsAsync();
+    if (!permission.granted && permission.canAskAgain) {
+      permission = await Location.requestForegroundPermissionsAsync();
+    }
     if (!permission.granted) {
       return { status: 'denied', canAskAgain: permission.canAskAgain };
     }
@@ -46,15 +69,34 @@ export async function requestForegroundOrigin(): Promise<ForegroundLocationResul
     const position = await Location.getCurrentPositionAsync({
       accuracy: Location.Accuracy.Balanced,
     });
-    approvedOrigin = {
+    const point = {
       latitude: position.coords.latitude,
       longitude: position.coords.longitude,
     };
-    return { status: 'granted', origin: approvedOrigin };
-  } catch {
+    approvedOrigin = point;
+    return { status: 'granted', point };
+  } catch (error) {
     return {
       status: 'unavailable',
-      message: 'Your location is unavailable right now. You can still browse the campus list.',
+      message:
+        error instanceof Error
+          ? error.message
+          : 'Your location is unavailable right now. You can still browse the campus list.',
     };
   }
+}
+
+export async function requestForegroundOrigin(): Promise<ForegroundLocationResult> {
+  const result = await requestCoordinates();
+  if (result.status !== 'granted') return result;
+  return { status: 'granted', origin: result.point };
+}
+
+export async function requestForegroundPoint(): Promise<ForegroundPointResult> {
+  const result = await requestCoordinates();
+  if (result.status !== 'granted') return result;
+  return {
+    status: 'granted',
+    point: { ...result.point, label: 'Last approved device location' },
+  };
 }
