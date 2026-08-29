@@ -71,7 +71,7 @@ export default function DiscoverScreen() {
     setLocationMessage(result.message);
   }, []);
 
-  const openDrop = (id: string) => router.push(`/food-drop/${id}`);
+  const openDrop = (id: string) => router.push({ pathname: '/food-drop/[id]', params: { id } });
 
   return (
     <AppScreen>

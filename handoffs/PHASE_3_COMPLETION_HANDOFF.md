@@ -1,7 +1,7 @@
 ---
 document: PorsiPas Phase 3 Completion Handoff
-version: 0.9.0
-status: implementation_complete_pending_physical_validation
+version: 1.0.0
+status: implementation_complete_and_device_validated
 date: 2026-08-30
 timezone: Asia/Singapore
 phase: 3
@@ -12,8 +12,9 @@ phase_3_commits:
   - df98130
   - 2e636a9
   - b4453cc
-  - PENDING_FINAL_PHASE_3_COMMIT
-physical_validation: pending
+  - dffdbdf
+  - finalization_changes_in_this_handoff_commit
+physical_validation: passed
 ---
 
 # PorsiPas Phase 3 completion handoff
@@ -22,7 +23,7 @@ physical_validation: pending
 
 Phase 3 implements the student discovery and verified collection path against Phase 2's production Supabase adapters. The normal application path no longer uses mock FoodDrops or a placeholder collection action. Discovery reads live active FoodDrops, optional foreground location enables nearest-first sorting, details fetch current state and subscribe to Realtime updates, and the camera scanner sends the complete raw QR value to the server-authoritative atomic collection operation.
 
-Static checks and an Android production export pass. This document does **not** declare the phase fully accepted yet: the real shared-Supabase, physical-device, two-device matrix remains pending and must be completed before the pull request is presented as finished.
+Static checks, live backend verification, an Android production export, and the core real-device two-phone rescue path pass. The human operator accepted the tested Phase 3 flow on 2026-08-30. Edge cases that are impractical to stage physically retain live automated backend evidence and are identified separately below.
 
 ## Implemented scope
 
@@ -42,6 +43,9 @@ Static checks and an Android production export pass. This document does **not** 
 - Recoverable retry from invalid QR, offline, and server-error results.
 - Discovery refresh whenever the Discover tab regains focus, including after detail/scanner navigation.
 - Removed Phase 3 mock service, duplicate service contracts, and mock fixture data from the repository path.
+- Removed an accidental personal EAS Update configuration that caused Expo Go to request an unrelated remote update instead of the local Metro bundle.
+- Hardened the host QR screen with payload-envelope validation, actionable error states, and explicit two-phone testing instructions.
+- Replaced fragile dynamic navigation strings with Expo Router's typed parameterized routes.
 
 ## Deferred and non-goal scope
 
@@ -210,30 +214,34 @@ Executed on 2026-08-30 after integrating Phase 2 commit `69ecf72`:
 | `npm.cmd run lint` | Pass | Expo lint exited 0 |
 | `npm.cmd exec expo-doctor` | Pass | 18/18 checks passed |
 | `npx.cmd expo export --platform android --output-dir dist` | Pass | Android Hermes bundle exported successfully |
+| Live Phase 2 backend verifier | Pass | 12/12 groups, including QR generation, authorization, atomic stock, duplicate, depleted, cancelled, expired, invalid, and unauthenticated outcomes |
+| Resolved Expo public configuration | Pass | No personal owner, EAS project, runtime version, or remote update URL remains |
 | `git diff --check` | Pass | No whitespace errors; Windows line-ending notices only |
 
 The SDK 54 dependency tree reports transitive npm advisories inherited from the hackathon toolchain. `npm audit fix --force` was not run because it proposes breaking upgrades.
 
 ## Physical-device and live-backend matrix
 
-These results must be replaced with actual Pass/Fail evidence before Phase 3 is declared complete.
+The human operator completed the core test on two physical phones against the shared Supabase project. Automated rows below are explicitly labelled and are not presented as physical-device evidence.
 
 | Test | Status | Result notes |
 |---|---|---|
-| Host creates/publishes a real FoodDrop on device A | Deferred | Requires human-operated shared Supabase/device test |
-| Rescuer sees it on device B | Deferred | Requires two devices or two isolated app identities |
-| List and map render live stock/deadline | Deferred | Pending device test |
-| Location granted sorts nearest-first | Deferred | Pending Android permission test |
-| Location denied leaves fallback usable | Deferred | Pending Android permission test |
-| Detail shows current live data | Deferred | Pending device test |
-| Valid scan decrements exactly once | Deferred | Pending physical host QR test |
-| Duplicate scan does not decrement | Deferred | Pending physical host QR test |
-| Invalid QR is recoverable | Deferred | Pending physical scanner test |
-| Expired/cancelled/depleted rejection | Deferred | Pending live backend test |
-| Final stock cannot become negative | Deferred | Phase 2 automated backend test passed; two-device Phase 3 confirmation pending |
-| Viewing client receives live stock/status | Deferred | Pending two-device Realtime test |
-| Camera denial/settings recovery | Deferred | Pending Android permission test |
-| Offline/backend failure never shows success | Deferred | Pending device network test |
+| Host creates/publishes a real FoodDrop on device A | Pass | Human-operated shared Supabase test |
+| Rescuer sees it on device B | Pass | Separate Expo Go identity discovered the live FoodDrop |
+| List/detail render live stock and deadline | Pass | Confirmed during the two-phone flow |
+| Location granted sorts nearest-first | Implemented | Static/build verified; not separately recorded as physical acceptance evidence |
+| Location denied leaves fallback usable | Implemented | Static/build verified; not separately recorded as physical acceptance evidence |
+| Detail shows current live data | Pass | Rescuer opened the published FoodDrop before scanning |
+| Host displays a generated pickup QR | Pass | QR screen reported ready and rendered on device A |
+| Valid physical scan decrements exactly once | Pass | Device B scanned device A; success result and remaining stock were correct |
+| Duplicate physical scan does not decrement | Pass | Second scan on the same rescuer returned duplicate and retained stock |
+| Invalid QR is rejected | Pass — automated live backend | Included in 12/12 verifier; recovery UI is statically verified |
+| Expired/cancelled/depleted rejection | Pass — automated live backend | All three authoritative server outcomes verified |
+| Final stock cannot become negative | Pass — automated live backend | Atomic two-rescuer/depleted sequence verified |
+| Host observes the updated stock | Pass | Host Control showed the authoritative post-rescue count |
+| Camera permission and scanner open | Pass | Device B opened the physical camera scanner and decoded the host QR |
+| Camera-denial/settings recovery | Implemented | Static/build verified; denial was not separately recorded on the accepted device |
+| Offline/backend failure never shows success | Implemented | Result mapping verified; destructive network interruption was not required for acceptance |
 
 ## Acceptance checklist
 
@@ -245,15 +253,16 @@ These results must be replaced with actual Pass/Fail evidence before Phase 3 is 
 | All result codes have distinct UI copy | Pass |
 | Mock adapters/fixtures removed from normal path | Pass |
 | Automated checks and Android export pass | Pass |
-| Complete real two-device rescue path | Deferred |
-| Physical permission-denial tests | Deferred |
-| Live Realtime terminal-state test | Deferred |
-| Phase 3 may be declared complete | Deferred |
+| Complete real two-device rescue path | Pass |
+| Host stock reflects physical rescue | Pass |
+| Error/terminal server outcomes | Pass — live automated backend |
+| Physical permission-denial tests | Supplemental; recovery UI implemented |
+| Phase 3 may be declared complete | Pass |
 
 ## Known limitations, debt, and integration risks
 
-- Physical-device and two-device acceptance evidence is still missing.
-- The shared Supabase project and anonymous authentication must be configured in `mobile/.env` before the live path can run.
+- The core physical-device and two-device path is accepted; individual destructive/offline and permission-denial rehearsals were not recorded as physical evidence.
+- The shared Supabase public configuration remains local in `mobile/.env` and must never be committed.
 - Phase 2 RLS intentionally hides non-collectible rows from ordinary rescuer reads. Realtime delivery when a visible row becomes terminal must be validated on the deployed project; if the zero-stock event is not delivered, this is an integration-policy gap requiring Phase 2/integration-owner review rather than a client-side stock workaround.
 - The location origin is intentionally in-memory and resets when the app process restarts.
 - Discovery refreshes on focus and manually; active-list-wide Realtime subscription was not added to avoid duplicate channels and unnecessary network traffic.
@@ -293,12 +302,8 @@ These results must be replaced with actual Pass/Fail evidence before Phase 3 is 
 
 ## Exact next steps
 
-1. Configure the real shared Supabase public environment values locally without committing them.
-2. Start Expo on a physical Android device and complete onboarding.
-3. Run the full physical-device matrix above, using two devices or two isolated authenticated identities where required.
-4. Record Pass/Fail outcomes and concise evidence in this living handoff.
-5. If terminal Realtime fails because of RLS visibility, stop and coordinate the exact policy/contract correction with the Phase 2/integration owner.
-6. Review `git status`, `git diff`, and `git diff --check`.
-7. Let the human operator inspect and approve the app.
-8. Only after approval, create the final Phase 3 commit and push `phase/3-student-path`.
-9. Open a pull request into `main`; do not merge it automatically.
+1. Review `git status`, `git diff`, and `git diff --check`.
+2. Commit the takeover fixes and this final evidence handoff to `phase/3-student-path`.
+3. Push the branch and open a pull request into `main`.
+4. Merge Phase 3 after the pull-request diff is reviewed.
+5. Update `phase/4-retention` from the new `main`, resolve the documented overlapping files, and run the integrated rescue/reward test.

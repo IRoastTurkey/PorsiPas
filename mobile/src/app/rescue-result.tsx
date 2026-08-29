@@ -76,7 +76,7 @@ export default function RescueResultScreen() {
     if (path === 'retry' && foodDropId) {
       router.replace({ pathname: '/scan', params: { foodDropId } });
     } else if (path === 'detail' && foodDropId) {
-      router.replace(`/food-drop/${foodDropId}`);
+      router.replace({ pathname: '/food-drop/[id]', params: { id: foodDropId } });
     } else {
       router.replace('/');
     }
