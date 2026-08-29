@@ -46,9 +46,10 @@
       [
         "expo-location",
         {
-          "locationWhenInUsePermission": "Allow PorsiPas to set the FoodDrop pickup point while the app is open."
+          "locationWhenInUsePermission": "Allow PorsiPas to find nearby FoodDrops, set pickup points, or save a watch area while the app is open."
         }
-      ]
+      ],
+      "expo-notifications"
     ],
     "experiments": {
       "typedRoutes": true,

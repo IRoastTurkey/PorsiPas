@@ -85,6 +85,8 @@ export interface CollectionRecord {
   id: UUID;
   foodDropId: UUID;
   userId: UUID;
+  title: string;
+  venueName: string;
   verifiedAt: ISODateTime;
   quantity: 1;
   pointsAwarded: number;
@@ -99,6 +101,30 @@ export interface WatchZone {
   label: string | null;
   expiresAt: ISODateTime | null;
   enabled: boolean;
+  refreshedAt: ISODateTime;
+  createdAt: ISODateTime;
+  updatedAt: ISODateTime;
+}
+
+export interface SaveWatchZoneInput {
+  centerLatitude: number;
+  centerLongitude: number;
+  radiusMeters: number;
+  label: string | null;
+  enabled: boolean;
+}
+
+export interface AlertDelivery {
+  id: UUID;
+  foodDropId: UUID;
+  approximateDistanceMeters: number;
+  title: string;
+  venueName: string;
+  remainingStock: number;
+  pickupDeadline: ISODateTime;
+  createdAt: ISODateTime;
+  presentedAt: ISODateTime | null;
+  openedAt: ISODateTime | null;
 }
 
 export interface CollectFoodDropResult {
@@ -139,7 +165,7 @@ export interface AuthService {
 
 export interface WatchZoneService {
   getMine(): Promise<WatchZone | null>;
-  saveMine(input: Omit<WatchZone, 'id' | 'userId'>): Promise<WatchZone>;
+  saveMine(input: SaveWatchZoneInput): Promise<WatchZone>;
   disableMine(): Promise<void>;
   deleteMine(): Promise<void>;
 }
@@ -151,4 +177,11 @@ export interface RetentionService {
     userMealsRescued: number;
     totalMealsRescued: number;
   }>;
+}
+
+export interface AlertDeliveryService {
+  listMine(limit?: number): Promise<AlertDelivery[]>;
+  markPresented(id: UUID): Promise<void>;
+  markOpened(id: UUID): Promise<void>;
+  subscribe(onDelivery: (delivery: AlertDelivery) => void): () => void;
 }
