@@ -1,64 +1,58 @@
 # PorsiPas mobile app
 
-This folder contains the Android-first PorsiPas app built with Expo, React Native, and TypeScript.
+Android-first Expo/React Native application for discovering, hosting, and verifying campus surplus-food rescues.
 
-The project intentionally targets Expo SDK 54 because it matches the Expo Go builds distributed through the Google Play Store and Apple App Store. Do not upgrade the Expo SDK during the hackathon without also planning how every test device will receive a compatible client.
+## Requirements
 
-## Phase 1 scope
-
-Phase 1 establishes a runnable mobile foundation:
-
-- PorsiPas application identity and colour system
-- Discover, Create, and Profile tab navigation
-- Honest placeholders for features that require the backend
-- Environment-variable template for Phase 2
-- A low-friction Expo Go workflow for Android testing
-
-It deliberately contains no authentication, database, map, QR scanning, or fake live data. Those features are added in later phases.
+- Node.js LTS (the current team machine also works with Node 24)
+- Expo Go on the Android test phone
+- Access to the team Supabase project
 
 ## First-time setup
 
-Install the current Node.js LTS release on the development computer and Expo Go on the Android phone. Then open PowerShell in the repository and run:
+From PowerShell in this folder:
 
 ```powershell
-cd mobile
 npm install
 Copy-Item .env.example .env
 ```
 
-The empty Phase 1 environment values are expected. Real Supabase values will be added in Phase 2.
+Add the team project’s public values to `.env`:
 
-## Run on Android with the fewest steps
-
-Keep the computer and phone online, then run:
-
-```powershell
-npm run start:tunnel
+```dotenv
+EXPO_PUBLIC_SUPABASE_URL=https://YOUR_PROJECT.supabase.co
+EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY=sb_publishable_YOUR_PUBLIC_KEY
 ```
 
-On the phone:
+Never use a Supabase service-role key in the mobile app. Enable anonymous sign-ins in the project and run `../supabase/migrations/202608290001_phase2_foundation.sql` once before opening the app.
 
-1. Open Expo Go.
-2. Scan the QR code shown in PowerShell.
-3. Wait for the JavaScript bundle to finish loading.
+## Run on Android
 
-Tunnel mode is the default team workflow because it usually works even when the phone and computer cannot communicate directly on campus Wi-Fi. It routes the temporary development connection through Expo's tunnel provider, so use it only while testing and press `Ctrl+C` when finished. If both devices can communicate on the same trusted local network, `npm start` keeps the connection local and is usually faster.
+Tunnel mode is the simplest option across campus networks:
+
+```powershell
+npm run start:tunnel -- --clear
+```
+
+Open Expo Go and scan the terminal QR. If the phone and computer are on the same trusted network, `npm start` is faster. Press `Ctrl+C` when finished.
+
+## Phase 2 host flow
+
+1. A new installation signs in anonymously.
+2. Enter a required display name.
+3. Open **Create**.
+4. Add a current food photo, positive stock, pickup details, deadline, allergen information, and safety confirmation.
+5. Confirm the pickup pin with foreground location or by tapping the map.
+6. Publish and display the generated QR at pickup.
+7. Use the management screen to correct stock, extend by 30 minutes, or cancel.
 
 ## Quality checks
-
-Run these before sharing a branch:
 
 ```powershell
 npm run typecheck
 npm run lint
+npx expo-doctor
+npx expo export --platform android
 ```
 
-## Expected Phase 1 result
-
-The phone should show three working tabs:
-
-- **Discover** — explains the future FoodDrop map and rescue flow
-- **Create** — previews the three-step host flow
-- **Profile** — previews display name, points, alert preferences, and weekly streaks
-
-All values are intentionally static in this phase. The application should start without a red error screen and switching tabs should not crash.
+See `../docs/PHASE_2_HANDOFF.md` for backend operations, security decisions, integration boundaries, and the full validation checklist.
