@@ -1,0 +1,41 @@
+# Dependencies
+node_modules/
+
+# Expo and generated builds
+.expo/
+dist/
+web-build/
+expo-env.d.ts
+
+# Supabase local tooling
+supabase/.temp/
+
+# Environment variables and secrets
+.env
+.env.*
+!.env.example
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Signing credentials and private keys
+*.jks
+*.p8
+*.p12
+*.pem
+*.key
+*.mobileprovision
+
+# Editor and operating-system files
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Local temporary files
+tmp/
+
