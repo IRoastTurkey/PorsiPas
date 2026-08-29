@@ -1,89 +1,98 @@
 # PorsiPas
 
-> Catch the drop. Save the meal.
+> **Catch the drop. Save the meal.**
 
-PorsiPas is a standalone campus food-rescue mobile application. Caterers and event organizers publish time-sensitive surplus meals as **FoodDrops**. Students discover nearby FoodDrops on a meteor-themed map, see live remaining stock, collect a portion by scanning an on-site QR code, and build a weekly rescue streak.
+PorsiPas is an Android-first campus food-rescue app. Hosts publish unserved surplus as time-sensitive **FoodDrops**; nearby students find them on a meteor map and verify one collection by scanning the host's physical QR code.
 
-## Current status
+**Submission status:** working prototype, physically tested on two phones, and ready for live evaluation.
 
-PorsiPas is an Android-first hackathon prototype for the sustainability challenge. Phases 1–5 form a merged, device-validated foundation: the Expo app, shared Supabase backend, complete host path, live discovery, verified QR rescue, retention, private watch zones, foreground alerts, PorsiPal, meteor-map polish, and resilient user-facing states. The combined, device-validated Phase 6–8 engagement candidate adds PorsiPal ranks, a weekly rescue mission, verified badges, privacy-safe sharing, and a 30-second judge tour without changing the backend collection authority.
+## Why it matters
 
-## Core flow
+Campus surplus is often announced too late, buried in chat messages, or collected without live stock. PorsiPas turns that informal process into one clear loop:
 
-1. A host creates a FoodDrop with a photo, stock, pickup location, and deadline.
-2. The FoodDrop appears as a meteorite on the map.
-3. Eligible users receive an alert or discover it manually.
-4. A user travels to the pickup point and scans its QR code.
-5. The server verifies the collection and decreases live stock by one.
-6. The user's points and weekly rescue streak update.
+1. A host posts a photo, stock, pickup point, and deadline.
+2. A rescuer discovers the FoodDrop in the live list or meteor map.
+3. The rescuer travels to pickup and scans the host's QR.
+4. Supabase verifies the collection and decreases stock exactly once.
+5. The verified rescue advances points, history, weekly missions, ranks, and badges.
 
-## V1 boundaries
+## What judges can evaluate
 
-V1 includes:
+- One anonymous account can both host and rescue; no demo password is required.
+- Live FoodDrop creation, list/map discovery, stock, deadlines, dietary and allergen information.
+- Physical QR collection with duplicate, expired, cancelled, and depleted protection.
+- Private foreground-location sorting and user-selected watch radius.
+- Verified points, history, impact, weekly streaks, PorsiPal ranks, missions, and badges.
+- Privacy-safe native sharing and a built-in 30-second product tour.
 
-- Standalone mobile app
-- Student and host actions in one account
-- Anonymous authentication with a required display name
-- FoodDrop creation with a required photo
-- Map and list discovery
-- Distance sorting and user-selected alert radius
-- Live remaining stock
-- One-portion QR verification
-- Points and weekly rescue streaks
-- PorsiPal rescue ranks, weekly missions, and verified badges
-- Privacy-safe native sharing
-- In-app behaviour, privacy, and food-responsibility tour
-- Android-first physical-device demo
+## Recommended 2–3 minute demo
 
-V1 intentionally excludes:
+Use two phones with different PorsiPas identities:
 
-- Telegram integration
-- Continuous background location tracking
-- Food-image analysis or calorie estimation
-- Reservations, delivery, and payments
-- Team scores and leaderboards
-- Caterer ratings and production-grade host verification
+1. **Phone A:** create a FoodDrop with stock of at least two and display its QR.
+2. **Phone B:** discover the meteor, open its details, and scan the QR.
+3. Show the PorsiPal confirmation and stock falling by exactly one on both phones.
+4. Scan again to show duplicate protection and no second reward.
+5. Open Profile to show verified history, the weekly mission, rank, badges, watch radius, and privacy-safe sharing.
 
-## Project documents
+The full timed narration is in [the demo script](./docs/submission/DEMO_SCRIPT.md).
 
-- [PorsiPas V1 product and engineering handoff](./PorsiPasV1_HANDOFF.md)
-- [PorsiPas V1 parallel-work integration contract](./docs/INTEGRATION_CONTRACT_V1.md)
-- [Phase 2 implementation and integration handoff](./docs/PHASE_2_HANDOFF.md)
-- [Phase 3 student rescue completion handoff](./handoffs/PHASE_3_COMPLETION_HANDOFF.md)
-- [Phase 4 retention and alerts handoff](./docs/PHASE_4_HANDOFF.md)
-- [Phase 5 completion handoff](./handoffs/PHASE_5_COMPLETION_HANDOFF.md)
-- [Phase 6–8 engagement handoff](./handoffs/PHASE_6_8_ENGAGEMENT_HANDOFF.md)
-- [Final demo script](./docs/submission/DEMO_SCRIPT.md)
-- [Final submission checklist](./docs/submission/FINAL_SUBMISSION_CHECKLIST.md)
-- [Hackathon challenge brief](./Lifehacks%20sharing_Ecovolt%20Presentation.pdf)
+## Run the prototype
 
-The handoff is the working source of truth for requirements, decisions, acceptance criteria, risks, and unresolved questions.
+### Requirements
 
-## Planned technical direction
+- Node.js LTS and npm
+- Expo Go compatible with Expo SDK 54
+- Android phone recommended; iOS is supported through Expo Go
+- A configured Supabase project
 
-- React Native with Expo and TypeScript
-- Supabase Auth, Postgres, Storage, and Realtime
-- QR verification through an atomic server-side database operation
-- Expo location, camera, and notification capabilities
-
-## Development setup
-
-Install Node.js LTS and Expo Go on the Android test phone, then run:
+### Quick start
 
 ```powershell
-cd mobile
-npm install
-npm run start:tunnel
+git clone https://github.com/IRoastTurkey/PorsiPas.git
+cd PorsiPas\mobile
+npm ci
+Copy-Item .env.example .env
 ```
 
-The project intentionally uses Expo SDK 54 so it opens in the Expo Go version distributed through the Play Store and App Store. Scan the displayed QR code from Expo Go and press `Ctrl+C` after testing to close the temporary tunnel. See [mobile/README.md](./mobile/README.md) for Supabase setup, development commands, and Phase 2 verification.
+Add the Supabase **public project URL** and **publishable key** to `mobile/.env`, then run:
 
-## Repository practices
+```powershell
+npm run start:tunnel -- --clear
+```
 
-- Keep `main` in a runnable state.
-- Use short-lived feature branches for substantial work.
-- Commit small, coherent changes with descriptive messages.
-- Review `git status` and staged changes before every commit.
-- Never commit `.env` files, service-role keys, signing credentials, or personal tokens.
+`npm ci` installs the exact versions in `package-lock.json`. Scan the QR with Expo Go. On Windows systems that block `npm.ps1`, use `npm.cmd` in place of `npm`. Press `Ctrl+C` to stop the temporary tunnel.
 
-This is currently a private hackathon project. No public software license has been selected.
+For a new Supabase project, migration order and complete setup instructions are in [mobile/README.md](./mobile/README.md). Never place a database password or service-role key in the app.
+
+## Architecture and verification
+
+- **Mobile:** React Native, Expo Router, TypeScript
+- **Backend:** Supabase anonymous Auth, Postgres, Storage, Realtime, Row Level Security, and atomic RPCs
+- **Verification:** 12/12 core backend checks, 15/15 retention groups, engagement/privacy assertions, TypeScript, ESLint, Expo Doctor 18/18, Android export, and physical two-phone regression
+
+The server is authoritative for stock, collections, points, streaks, and impact. UI celebrations and progression never manufacture a rescue.
+
+## Honest prototype boundaries
+
+- Location is requested only while the app is open; there is no continuous background tracking.
+- Expo Go provides in-app and running-app alert behaviour. Production closed-app remote push is deferred.
+- One verified collection is reported as one rescued portion. We do not invent weight, emissions, or monetary conversions.
+- PorsiPas coordinates surplus pickup; hosts remain responsible for descriptions, allergens, handling, and food safety.
+
+## Submission materials
+
+- [Project rationale](./docs/submission/PITCH_RATIONALE.md)
+- [2–3 minute demo script](./docs/submission/DEMO_SCRIPT.md)
+- [Final submission checklist](./docs/submission/FINAL_SUBMISSION_CHECKLIST.md)
+- [Accessibility QA](./docs/submission/ACCESSIBILITY_QA.md)
+- [Third-party tools and asset acknowledgements](./ACKNOWLEDGEMENTS.md)
+- [Final Phase 6–8 implementation handoff](./handoffs/PHASE_6_8_ENGAGEMENT_HANDOFF.md)
+
+Detailed engineering handoffs remain in `docs/` and `handoffs/` for reviewers who want the full implementation record.
+
+## Repository
+
+Source: [github.com/IRoastTurkey/PorsiPas](https://github.com/IRoastTurkey/PorsiPas)
+
+This is currently a private hackathon project. Confirm judge access before the submission deadline. No public software licence has been selected.

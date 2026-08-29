@@ -2,6 +2,14 @@
 
 Do not tick an item because its code exists. Tick it only after the stated build/device check passes on the final integrated branch.
 
+## Devpost eligibility gate
+
+- [ ] Submit exactly one team entry before the announced deadline.
+- [ ] List every participating team member on that entry.
+- [ ] Attach the working prototype, concise project description, repository URL, and demonstration material.
+- [ ] Verify judges can access the private repository, or make it public if the event requires public access.
+- [x] Third-party tools, libraries, APIs, generative AI use, and assets are disclosed in `ACKNOWLEDGEMENTS.md`.
+
 ## Integration gate
 
 - [x] Phase 3 is reviewed, merged into `main`, and its completion handoff is read.
@@ -89,6 +97,7 @@ Do not tick an item because its code exists. Tick it only after the stated build
 ## Submission package
 
 - [ ] Final repository URL and exact commit are recorded.
+- [ ] Repository access is tested from the account or visibility level judges will use.
 - [ ] Setup instructions work for a teammate from a clean checkout.
 - [ ] Required challenge form fields are complete.
 - [ ] Demo video link permissions are tested in a private/incognito window.
