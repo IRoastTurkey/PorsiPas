@@ -1,12 +1,26 @@
-import { StyleSheet, Text, View } from 'react-native';
+import { useEffect, useState } from 'react';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
+import MapView, { Marker } from 'react-native-maps';
+import { useRouter } from 'expo-router';
 
 import { AppScreen } from '@/components/app-screen';
 import { FeatureCard } from '@/components/feature-card';
 import { PageHeader } from '@/components/page-header';
 import { StatTile } from '@/components/stat-tile';
 import { colors, radii, spacing, typeScale } from '@/constants/theme';
+import { FoodDropSummary } from '@/domain/types';
+import { FoodDropCard } from '@/components/discovery/food-drop-card';
+import { mockFoodDropReadService } from '@/services/food-drops/mock-service';
 
 export default function DiscoverScreen() {
+  const router = useRouter();
+  const [view, setView] = useState<'list' | 'map'>('list');
+  const [drops, setDrops] = useState<FoodDropSummary[]>([]);
+
+  useEffect(() => {
+    void mockFoodDropReadService.listActive({}).then(setDrops);
+  }, []);
+
   return (
     <AppScreen>
       <PageHeader
@@ -23,10 +37,34 @@ export default function DiscoverScreen() {
           <Text style={styles.heroEyebrow}>DISCOVER</Text>
           <Text style={styles.heroTitle}>The map is preparing for impact.</Text>
           <Text style={styles.heroDescription}>
-            Live FoodDrops, distance sorting, and pickup details arrive once the backend is connected.
+            Live data will replace this clearly labelled development preview when Phase 2 services are merged.
           </Text>
         </View>
       </View>
+
+      <View style={styles.switcher}>
+        {(['list', 'map'] as const).map((option) => (
+          <Pressable key={option} onPress={() => setView(option)} style={[styles.switchButton, view === option && styles.switchButtonActive]}>
+            <Text style={[styles.switchText, view === option && styles.switchTextActive]}>{option === 'list' ? 'List' : 'Map'}</Text>
+          </Pressable>
+        ))}
+      </View>
+
+      <Text style={styles.mockNotice}>DEVELOPMENT PREVIEW · MOCK FOODDROPS</Text>
+      {view === 'map' ? (
+        <MapView
+          style={styles.map}
+          initialRegion={{ latitude: 1.2974, longitude: 103.7762, latitudeDelta: 0.006, longitudeDelta: 0.006 }}
+          accessibilityLabel="FoodDrop map">
+          {drops.map((drop) => (
+            <Marker key={drop.id} coordinate={{ latitude: drop.latitude, longitude: drop.longitude }} title={drop.title} description={`${drop.remainingStock} portions left`} onCalloutPress={() => router.push(`/food-drop/${drop.id}`)} />
+          ))}
+        </MapView>
+      ) : (
+        <View style={styles.dropList}>
+          {drops.map((drop) => <FoodDropCard key={drop.id} drop={drop} onPress={() => router.push(`/food-drop/${drop.id}`)} />)}
+        </View>
+      )}
 
       <View style={styles.statsRow}>
         <StatTile label="Active drops" value="0" />
@@ -111,4 +149,12 @@ const styles = StyleSheet.create({
     fontSize: typeScale.bodyLarge,
     fontWeight: '900',
   },
+  switcher: { flexDirection: 'row', padding: 4, borderRadius: radii.pill, backgroundColor: colors.mint },
+  switchButton: { flex: 1, alignItems: 'center', paddingVertical: spacing.sm, borderRadius: radii.pill },
+  switchButtonActive: { backgroundColor: colors.surface },
+  switchText: { color: colors.muted, fontWeight: '800' },
+  switchTextActive: { color: colors.primaryDark },
+  mockNotice: { color: colors.muted, fontSize: typeScale.caption, fontWeight: '900', letterSpacing: 0.8 },
+  dropList: { gap: spacing.md },
+  map: { height: 320, borderRadius: radii.md },
 });
