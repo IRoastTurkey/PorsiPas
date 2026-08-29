@@ -13,17 +13,43 @@ export default function HostQrScreen() {
   const router = useRouter();
   const [payload, setPayload] = useState<string | null>(null);
   const [title, setTitle] = useState('FoodDrop');
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   const load = useCallback(async () => {
-    if (!id) return;
+    if (!id) {
+      setLoading(false);
+      setError('This QR link is missing its FoodDrop ID. Return to Host Control and open it again.');
+      return;
+    }
+
     try {
+      setLoading(true);
       setError(null);
+      setPayload(null);
       const drop = await foodDropReadService.getById(id);
-      setTitle(drop?.title ?? 'FoodDrop');
-      setPayload(await foodDropHostService.getQrPayload(id));
+      if (!drop) {
+        throw new Error('This FoodDrop could not be found. Return to Host Control and refresh it.');
+      }
+      if (drop.status !== 'active') {
+        throw new Error('Only an active FoodDrop has a pickup QR. Publish a new FoodDrop or return to Host Control.');
+      }
+
+      setTitle(drop.title);
+      const nextPayload = await foodDropHostService.getQrPayload(id);
+      if (!/^porsipas:\/\/collect\?token=[a-f0-9]{64}$/i.test(nextPayload)) {
+        throw new Error('The server returned an invalid pickup code. Please retry before accepting collections.');
+      }
+      setPayload(nextPayload);
     } catch (nextError) {
-      setError(nextError instanceof Error ? nextError.message : 'Could not load the pickup QR.');
+      const message = nextError instanceof Error ? nextError.message : '';
+      setError(
+        message.includes('active_food_drop_qr_not_found')
+          ? 'No active pickup QR exists for this FoodDrop. Return to Host Control and confirm it is published and still active.'
+          : message || 'Could not load the pickup QR. Check your connection and try again.',
+      );
+    } finally {
+      setLoading(false);
     }
   }, [id]);
 
@@ -41,16 +67,20 @@ export default function HostQrScreen() {
         <Text style={styles.title}>Scan to rescue</Text>
         <Text style={styles.dropTitle}>{title}</Text>
         <View style={styles.qrCard}>
-          {payload ? (
+          {loading ? (
+            <ActivityIndicator color={colors.primary} size="large" />
+          ) : payload ? (
             <QRCode value={payload} size={250} backgroundColor={colors.white} color={colors.ink} />
           ) : error ? (
             <Text style={styles.error}>{error}</Text>
-          ) : (
-            <ActivityIndicator color={colors.primary} size="large" />
-          )}
+          ) : null}
         </View>
-        <Text style={styles.instructions}>Each signed-in rescuer scans once when collecting one portion. Stock updates automatically.</Text>
-        {error ? <Pressable onPress={() => void load()} style={styles.retry}><Text style={styles.retryText}>Try again</Text></Pressable> : null}
+        {payload ? <Text style={styles.ready}>✓ PICKUP QR READY</Text> : null}
+        <Text style={styles.instructions}>
+          Keep this screen open on the host phone. On a different signed-in phone, open this FoodDrop, tap “Scan pickup QR”, and point its camera here.
+        </Text>
+        <Text style={styles.privacy}>Each rescuer scans once for one portion. The server verifies the private code and updates stock automatically.</Text>
+        {error ? <Pressable accessibilityRole="button" onPress={() => void load()} style={styles.retry}><Text style={styles.retryText}>Try again</Text></Pressable> : null}
       </View>
     </SafeAreaView>
   );
@@ -68,6 +98,8 @@ const styles = StyleSheet.create({
   dropTitle: { color: colors.peach, fontSize: typeScale.bodyLarge, fontWeight: '800', textAlign: 'center' },
   qrCard: { width: 290, height: 290, alignItems: 'center', justifyContent: 'center', marginVertical: spacing.lg, padding: 20, borderRadius: radii.lg, backgroundColor: colors.white },
   instructions: { maxWidth: 340, color: 'rgba(255,255,255,0.85)', fontSize: typeScale.body, lineHeight: 22, textAlign: 'center' },
+  ready: { color: colors.peach, fontSize: typeScale.caption, fontWeight: '900', letterSpacing: 1 },
+  privacy: { maxWidth: 340, color: 'rgba(255,255,255,0.65)', fontSize: typeScale.caption, lineHeight: 18, textAlign: 'center' },
   error: { color: '#A33A35', fontSize: typeScale.body, lineHeight: 21, textAlign: 'center' },
   retry: { marginTop: spacing.md, paddingHorizontal: spacing.xl, paddingVertical: spacing.md, borderRadius: radii.pill, backgroundColor: colors.white },
   retryText: { color: colors.meteor, fontWeight: '900' },

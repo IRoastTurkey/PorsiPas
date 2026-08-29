@@ -74,7 +74,7 @@ The hackathon V1 uses an Expo Go-compatible alert baseline:
 
 Closed-app remote push requires a development build and push-token infrastructure. It remains a documented stretch goal rather than a Phase 4 acceptance gate.
 
-The notification deep link targets `/food-drop/[id]`, which is owned by Phase 3. Alert delivery and the Profile inbox are independently validated; tapping through must be retested after Phase 3 is merged.
+The notification deep link targets `/food-drop/[id]`, which is owned by Phase 3. That route is now integrated. Alert delivery and the Profile inbox are independently validated; tapping through remains part of the final post-Phase 5 device regression.
 
 ## Validation evidence
 
@@ -93,21 +93,25 @@ Completed on the Phase 4 branch:
 - [x] Expo Doctor passed 18/18 checks
 - [x] Android production bundle exported successfully
 - [x] Real-phone Profile, watch-zone, radius, notification permission, live FoodDrop alert, and alert-inbox flow passed
-- [ ] Notification tap-to-detail retest after the Phase 3 detail route is integrated
+- [x] Phase 3 discovery, detail, scanner, and result routes integrated
+- [x] Combined camera, foreground-location, and notification configuration builds successfully
+- [x] Post-merge Android production bundle exported successfully
+- [x] Post-merge live backend behavioural verification passed 15/15 groups
+- [ ] Final notification tap-to-detail and reward regression after Phase 5 polish is integrated
 
 The live backend verification intentionally leaves two terminal test rescue records as audit evidence and cancels its near/far alert test drops.
 
-## Integration instructions
+## Phase 3 integration record
 
-1. Merge the completed Phase 3 branch into `main` before merging Phase 4.
-2. Merge the updated `main` into `phase/4-retention` and resolve the known overlapping files deliberately.
-3. In `mobile/package.json`, preserve Phase 3 camera/update dependencies and Phase 4 `expo-notifications` plus both verification scripts.
-4. In `mobile/app.json`, preserve the camera plugin/permission, the foreground-location wording, and the notifications plugin.
-5. In `mobile/src/app/_layout.tsx`, preserve Phase 3's detail/scan/result routes and Phase 4's `AlertProvider`.
-6. In `mobile/src/services/location/foreground-location.ts`, expose a combined interface supporting Phase 3 distance/discovery helpers and Phase 4's NUS fallback/watch-zone flow.
-7. In `mobile/src/domain/types.ts`, preserve all Phase 3 collection/discovery contracts and the Phase 4 retention additions.
-8. Regenerate `mobile/package-lock.json` from the reconciled package manifest if Git cannot merge it safely.
-9. Retest alert tap-to-detail, scan success, points, streak, history, stock reduction, and duplicate handling together before the Phase 4 PR is merged.
+1. Phase 3 was merged to `main` and then merged into `phase/4-retention`.
+2. Phase 3 owns the live Discover screen and hardened host QR screen; Phase 4 owns the live Profile screen.
+3. The package manifest preserves `expo-camera`, `expo-notifications`, and both live backend verification scripts. The accidental personal EAS Update dependency remains removed.
+4. The app manifest preserves camera, foreground-location/watch-zone, and notification plugins and permissions.
+5. Root navigation preserves Phase 3 detail/scan/result routes inside Phase 4's `AlertProvider`.
+6. The foreground-location module exposes a combined interface for discovery distance and saved watch-zone flows without background tracking.
+7. Shared domain types preserve the Phase 3 collection/discovery contract and all Phase 4 retention additions.
+8. The package lock was regenerated from the reconciled manifest.
+9. TypeScript, lint, Android export, and the 15/15 live backend verifier pass after integration.
 
 ## Machine-readable summary
 
@@ -128,7 +132,7 @@ The live backend verification intentionally leaves two terminal test rescue reco
   "closedAppRemotePushRequired": false,
   "backendVerification": "15/15 behavioural groups passed",
   "physicalDeviceValidation": "passed",
-  "remainingIntegrationTest": "notification_tap_to_phase3_detail_and_full_rescue_flow"
+  "remainingIntegrationTest": "final_post_phase5_notification_tap_and_reward_regression"
 }
 ```
 
@@ -137,5 +141,5 @@ The live backend verification intentionally leaves two terminal test rescue reco
 - Expo Go does not provide the production closed-app remote-push path used by a custom development build.
 - V1 stores only the user's latest approved watch point; it does not follow movement in the background.
 - Notification delivery is advisory. Persisted FoodDrop stock, deadline, and status remain authoritative.
-- Phase 3 owns the alert destination screen, so the final tap-through test is deferred until that branch is integrated.
+- The final tap-through and reward regression is deferred until Phase 5 polish is integrated so it is performed once against the submission candidate.
 
