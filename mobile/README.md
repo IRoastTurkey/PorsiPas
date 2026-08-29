@@ -1,58 +1,84 @@
-# PorsiPas mobile app
+# Run and evaluate PorsiPas
 
-Android-first Expo/React Native application for discovering, hosting, and verifying campus surplus-food rescues.
+This folder contains the Expo SDK 54 mobile app. The simplest evaluation path is the team's live two-phone demo. The steps below reproduce it from a checkout.
 
 ## Requirements
 
-- Node.js LTS (the current team machine also works with Node 24)
-- Expo Go on the Android test phone
-- Access to the team Supabase project
+- Node.js LTS and npm
+- Expo Go on an Android or iOS phone
+- A Supabase project with anonymous authentication enabled
 
-## First-time setup
+## 1. Install
 
-From PowerShell in this folder:
+From this folder:
 
 ```powershell
-npm install
+npm ci
 Copy-Item .env.example .env
 ```
 
-Add the team project’s public values to `.env`:
+If PowerShell blocks `npm.ps1`, replace `npm` with `npm.cmd`.
+
+## 2. Configure Supabase
+
+Add only the mobile-safe public values to `.env`:
 
 ```dotenv
 EXPO_PUBLIC_SUPABASE_URL=https://YOUR_PROJECT.supabase.co
 EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY=sb_publishable_YOUR_PUBLIC_KEY
 ```
 
-Never use a Supabase service-role key in the mobile app. Enable anonymous sign-ins in the project and run `../supabase/migrations/202608290001_phase2_foundation.sql` once before opening the app.
+Never use a database password or Supabase service-role key in the mobile app.
 
-## Run on Android
+For a fresh Supabase project:
 
-Tunnel mode is the simplest option across campus networks:
+1. Enable **Anonymous Sign-Ins** under Authentication settings.
+2. Open the SQL editor.
+3. Run these migrations once, in order:
+   - `../supabase/migrations/202608290001_phase2_foundation.sql`
+   - `../supabase/migrations/202608290002_phase2_collection_anon_result.sql`
+   - `../supabase/migrations/202608300001_phase4_retention.sql`
+4. Confirm the migrations complete without errors. They create the required tables, storage configuration, Row Level Security policies, and server functions.
+
+The team's existing project is already migrated. Do not rerun setup SQL against it during judging.
+
+## 3. Start Expo
+
+Across different networks, use the temporary tunnel:
 
 ```powershell
 npm run start:tunnel -- --clear
 ```
 
-Open Expo Go and scan the terminal QR. If the phone and computer are on the same trusted network, `npm start` is faster. Press `Ctrl+C` when finished.
+On the same trusted network, `npm start` is faster. Scan the displayed QR with Expo Go and press `Ctrl+C` when finished.
 
-## Phase 2 host flow
+If Expo Go opens a stale project, clear its app cache/data and scan the new QR instead of selecting a recent entry.
 
-1. A new installation signs in anonymously.
-2. Enter a required display name.
-3. Open **Create**.
-4. Add a current food photo, positive stock, pickup details, deadline, allergen information, and safety confirmation.
-5. Confirm the pickup pin with foreground location or by tapping the map.
-6. Publish and display the generated QR at pickup.
-7. Use the management screen to correct stock, extend by 30 minutes, or cancel.
+## 4. Evaluate with two phones
 
-## Quality checks
+1. Open PorsiPas on both phones and choose different display names.
+2. On Phone A, create and publish a FoodDrop with stock of at least two.
+3. On Phone B, discover the FoodDrop and inspect its current details.
+4. Display the host QR on Phone A and scan it through PorsiPas on Phone B.
+5. Confirm one success, one stock decrement, verified history, mission progress, and privacy-safe sharing.
+6. Scan again and confirm duplicate rejection with no second reward or stock change.
+
+No email, password, or seeded demo account is required; the app uses Supabase anonymous authentication.
+
+## Verification commands
 
 ```powershell
 npm run typecheck
 npm run lint
+npm run verify:engagement
+npm run verify:backend
+npm run verify:retention
 npx expo-doctor
 npx expo export --platform android
 ```
 
-See `../docs/PHASE_2_HANDOFF.md` for backend operations, security decisions, integration boundaries, and the full validation checklist.
+The backend verification scripts create terminal audit records in the configured project. Run them only when that behaviour is acceptable.
+
+## Expo Go limitation
+
+The V1 alert baseline is in-app and foreground/running-app behaviour. Android remote push is not available in Expo Go on SDK 54; production closed-app push requires a development build and push-token service.
