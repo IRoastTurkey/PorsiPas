@@ -1,10 +1,10 @@
 ---
 document_type: product_handoff
 product_name: PorsiPas
-version: "1.1"
+version: "1.2"
 status: working_baseline
 last_updated: "2026-08-29"
-timezone: Asia/Makassar
+timezone: Asia/Singapore
 owners: PorsiPas hackathon team
 hackathon_theme: Sustainability
 primary_platform: standalone_mobile_app
@@ -119,6 +119,12 @@ Required hackathon deliverables from the brief:
 | D-018 | Rescue streaks are weekly rather than daily. | Confirmed |
 | D-019 | V1 refreshes a user's location only while the app is open; a saved watch point and radius may still be used for alerts while the app is closed. | Confirmed |
 | D-020 | Development and the live hackathon demo are Android-first; cross-platform code is desirable, but an iOS build is not required. | Confirmed |
+| D-021 | V1 uses `react-native-maps`, installed through Expo for SDK 54, as the map library. | Confirmed |
+| D-022 | A scored verified rescue awards 100 points from one server-side configuration source. | Confirmed |
+| D-023 | Only the first verified rescue per user per Singapore calendar day awards points; all valid rescues still update real stock and history. | Confirmed |
+| D-024 | The default alert radius is 250 metres and the selectable V1 range is 50 to 2,000 metres. | Confirmed |
+| D-025 | V1 dietary tags are halal, vegetarian, vegan, contains pork, and unknown. | Confirmed |
+| D-026 | Expo Go-compatible alert and watch-zone behaviour is the notification baseline; closed-app remote push through a development build is a stretch goal. | Confirmed |
 
 ## 7. Target users
 
@@ -329,10 +335,10 @@ The example URL is deliberately invalid and must not be used in production.
 - **FR-ALERT-009:** Closing the app MUST NOT start or continue background location sampling.
 - **FR-ALERT-010:** The most recently user-approved watch point MAY continue to receive server-matched FoodDrop alerts until the user refreshes or disables it.
 
-Provisional alert defaults, pending team confirmation of O-006:
+Confirmed V1 alert-radius defaults:
 
-- Selectable radius: 50m to 2km.
-- Default radius: 250m.
+- Selectable radius: 50 m to 2 km.
+- Default radius: 250 m.
 - The last user-approved watch point remains active until refreshed or disabled.
 - A user may manually choose a named campus zone when location permission is unavailable or unwanted.
 
@@ -632,7 +638,7 @@ The actual Expo scaffold may choose different conventional directories. Preserve
 
 - Create the private GitHub repository.
 - Commit this handoff and the hackathon brief.
-- Resolve the blocking open decisions in Section 26.
+- Record the resolved implementation decisions and shared integration contract.
 - Sketch the host and student happy paths.
 
 ### Phase 1 - Foundation
@@ -728,17 +734,11 @@ test: cover final-stock race condition
 | Food-safety information is incomplete | User harm and trust loss | Require deadline and allergen field, restrict to controlled unserved food, and clearly identify the host |
 | Cute polish consumes core-development time | Broken end-to-end demo | Do not start creature systems until critical acceptance criteria pass |
 
-## 26. Open decisions requiring team agreement
+## 26. Resolved implementation decisions
 
-These are deliberately unresolved. Record the final choice in the decision log before hard-coding it.
+The earlier open decisions O-002, O-003, O-006, O-010, and O-011 were resolved on 2026-08-29 as D-021 through D-026. Exact cross-phase types, service interfaces, routes, ownership boundaries, and backend contracts are defined in `docs/INTEGRATION_CONTRACT_V1.md`.
 
-| ID | Open decision | Recommended starting point | Must resolve by |
-|---|---|---|---|
-| O-002 | How many points does a verified rescue award? | 100 base points, configurable server-side | Before gamification implementation |
-| O-003 | Should points be capped? | One scored rescue per day; all valid pickups still affect real stock | Before gamification implementation |
-| O-006 | What is the default alert radius? | 250m, with a selectable 50m to 2km range | Before notification UI implementation |
-| O-010 | Which dietary tags are supported? | Start with halal, vegetarian, vegan, contains pork, and unknown | Before FoodDrop form implementation |
-| O-011 | Which map and tile provider is used? | Choose based on Expo compatibility, cost, and hackathon setup time | Before map implementation |
+New implementation decisions must be recorded before affected behaviour is hard-coded.
 
 ## 27. Demo narrative
 
@@ -792,14 +792,15 @@ Do not delete historical decisions merely because the team changed direction. Ma
 
 | Version | Date | Summary |
 |---|---|---|
+| 1.2 | 2026-08-29 | Approved the SDK 54 map library, points amount and daily cap, alert-radius range, dietary tags, notification baseline, `Asia/Singapore` consistency, and the cross-phase integration contract. |
 | 1.1 | 2026-08-29 | Confirmed anonymous display-name identity, open host access, mandatory FoodDrop photos, one-portion QR semantics, weekly streak rules, foreground-only location refresh with a saved watch point, and Android-first delivery. |
 | 1.0 | 2026-08-29 | Established the standalone-app baseline, FoodDrop lifecycle, map and alert behavior, QR verification, live stock, points/streak direction, scope boundaries, acceptance criteria, and open decisions. |
 
 ## 31. Immediate next actions
 
-1. Team reads this handoff and proposes corrections.
-2. Team resolves O-002, O-003, O-006, O-010, and O-011 before the affected features are implemented.
-3. Commit the handoff, `.gitignore`, and source brief to the private repository.
-4. Create a short README linking to this handoff.
-5. Sketch the required screens and core demo path.
-6. Scaffold the chosen mobile stack only after the blocking decisions are recorded.
+1. Merge the approved V1 integration contract into `main`.
+2. Every teammate pulls the contract commit before creating their phase branch.
+3. Phase 2 implements the shared backend, authentication, host path, QR generation, and atomic collection operation.
+4. Phases 3 and 4 build against the approved interfaces and clearly labelled mock adapters until upstream integration.
+5. Phase 5 prepares isolated polish components, assets, and submission materials without editing active Phase 2-4 screens.
+6. Integrate and review pull requests in Phase 2, 3, 4, then 5 order.
