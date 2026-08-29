@@ -6,9 +6,7 @@ PorsiPas is a standalone campus food-rescue mobile application. Caterers and eve
 
 ## Current status
 
-PorsiPas is an Android-first hackathon prototype for the sustainability challenge. The team is currently completing Phase 0: repository setup and product-definition alignment.
-
-No application code has been scaffolded yet.
+PorsiPas is an Android-first hackathon prototype for the sustainability challenge. Phase 0 established the repository and product baseline. Phase 1 adds the Expo TypeScript application foundation under `mobile/`.
 
 ## Core flow
 
@@ -57,7 +55,17 @@ The handoff is the working source of truth for requirements, decisions, acceptan
 - QR verification through an atomic server-side database operation
 - Expo location, camera, and notification capabilities
 
-Development and setup instructions will be added during Phase 1 after the app is scaffolded.
+## Development setup
+
+Install Node.js LTS and Expo Go on the Android test phone, then run:
+
+```powershell
+cd mobile
+npm install
+npm run start:tunnel
+```
+
+The project intentionally uses Expo SDK 54 so it opens in the Expo Go version distributed through the Play Store and App Store. Scan the displayed QR code from Expo Go and press `Ctrl+C` after testing to close the temporary tunnel. See [mobile/README.md](./mobile/README.md) for the complete development commands, local-network alternative, and Phase 1 boundaries.
 
 ## Repository practices
 
