@@ -44,6 +44,7 @@ V1 intentionally excludes:
 ## Project documents
 
 - [PorsiPas V1 product and engineering handoff](./PorsiPasV1_HANDOFF.md)
+- [PorsiPas V1 parallel-work integration contract](./docs/INTEGRATION_CONTRACT_V1.md)
 - [Hackathon challenge brief](./Lifehacks%20sharing_Ecovolt%20Presentation.pdf)
 
 The handoff is the working source of truth for requirements, decisions, acceptance criteria, risks, and unresolved questions.
