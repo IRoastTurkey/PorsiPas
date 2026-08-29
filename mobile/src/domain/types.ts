@@ -9,7 +9,6 @@ export type DietaryTag =
   | 'vegan'
   | 'contains_pork'
   | 'unknown';
-
 export type CollectionResultCode =
   | 'success'
   | 'invalid_qr'
@@ -29,7 +28,6 @@ export interface UserProfile {
   lastQualifiedRescueAt: ISODateTime | null;
   createdAt: ISODateTime;
 }
-
 export interface FoodDrop {
   id: UUID;
   hostId: UUID;
@@ -100,7 +98,6 @@ export interface WatchZone {
   expiresAt: ISODateTime | null;
   enabled: boolean;
 }
-
 export interface CollectFoodDropResult {
   code: CollectionResultCode;
   foodDropId: UUID | null;
