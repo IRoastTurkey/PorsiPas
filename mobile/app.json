@@ -34,6 +34,20 @@
         {
           "backgroundColor": "#F7F8F2"
         }
+      ],
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Allow PorsiPas to choose a current FoodDrop photo.",
+          "cameraPermission": "Allow PorsiPas to photograph surplus food for a FoodDrop.",
+          "microphonePermission": false
+        }
+      ],
+      [
+        "expo-location",
+        {
+          "locationWhenInUsePermission": "Allow PorsiPas to set the FoodDrop pickup point while the app is open."
+        }
       ]
     ],
     "experiments": {

@@ -6,7 +6,7 @@ PorsiPas is a standalone campus food-rescue mobile application. Caterers and eve
 
 ## Current status
 
-PorsiPas is an Android-first hackathon prototype for the sustainability challenge. Phase 0 established the repository and product baseline. Phase 1 adds the Expo TypeScript application foundation under `mobile/`.
+PorsiPas is an Android-first hackathon prototype for the sustainability challenge. Phase 1 established the Expo application foundation. Phase 2 adds the shared Supabase backend, anonymous onboarding, and complete host FoodDrop path.
 
 ## Core flow
 
@@ -45,6 +45,7 @@ V1 intentionally excludes:
 
 - [PorsiPas V1 product and engineering handoff](./PorsiPasV1_HANDOFF.md)
 - [PorsiPas V1 parallel-work integration contract](./docs/INTEGRATION_CONTRACT_V1.md)
+- [Phase 2 implementation and integration handoff](./docs/PHASE_2_HANDOFF.md)
 - [Hackathon challenge brief](./Lifehacks%20sharing_Ecovolt%20Presentation.pdf)
 
 The handoff is the working source of truth for requirements, decisions, acceptance criteria, risks, and unresolved questions.
@@ -66,7 +67,7 @@ npm install
 npm run start:tunnel
 ```
 
-The project intentionally uses Expo SDK 54 so it opens in the Expo Go version distributed through the Play Store and App Store. Scan the displayed QR code from Expo Go and press `Ctrl+C` after testing to close the temporary tunnel. See [mobile/README.md](./mobile/README.md) for the complete development commands, local-network alternative, and Phase 1 boundaries.
+The project intentionally uses Expo SDK 54 so it opens in the Expo Go version distributed through the Play Store and App Store. Scan the displayed QR code from Expo Go and press `Ctrl+C` after testing to close the temporary tunnel. See [mobile/README.md](./mobile/README.md) for Supabase setup, development commands, and Phase 2 verification.
 
 ## Repository practices
 

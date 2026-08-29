@@ -1,76 +1,37 @@
-import { Tabs } from 'expo-router';
+import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
-import { ColorValue, StyleSheet, Text } from 'react-native';
 
-import { colors } from '@/constants/theme';
+import { AuthProvider, useAuth } from '@/features/auth/auth-provider';
+import { AuthStateScreen } from '@/features/auth/auth-state-screen';
 
-type TabIconProps = {
-  color: ColorValue;
-  symbol: string;
-};
+function RootNavigator() {
+  const { status, errorMessage, retry } = useAuth();
 
-function TabIcon({ color, symbol }: TabIconProps) {
-  return <Text style={[styles.tabIcon, { color }]}>{symbol}</Text>;
+  if (status === 'loading') return <AuthStateScreen kind="loading" />;
+  if (status === 'config_required') return <AuthStateScreen kind="config_required" />;
+  if (status === 'error') {
+    return <AuthStateScreen kind="error" message={errorMessage} onRetry={() => void retry()} />;
+  }
+
+  return (
+    <Stack screenOptions={{ headerShown: false }}>
+      <Stack.Protected guard={status === 'onboarding_required'}>
+        <Stack.Screen name="onboarding" />
+      </Stack.Protected>
+      <Stack.Protected guard={status === 'ready'}>
+        <Stack.Screen name="(tabs)" />
+        <Stack.Screen name="host/food-drop/[id]" />
+        <Stack.Screen name="host/food-drop/[id]/qr" />
+      </Stack.Protected>
+    </Stack>
+  );
 }
 
 export default function RootLayout() {
   return (
-    <>
+    <AuthProvider>
       <StatusBar style="dark" />
-      <Tabs
-        screenOptions={{
-          headerShown: false,
-          tabBarActiveTintColor: colors.primary,
-          tabBarInactiveTintColor: colors.tabInactive,
-          tabBarHideOnKeyboard: true,
-          tabBarLabelStyle: styles.tabLabel,
-          tabBarStyle: styles.tabBar,
-          sceneStyle: styles.scene,
-        }}>
-        <Tabs.Screen
-          name="index"
-          options={{
-            title: 'Discover',
-            tabBarIcon: ({ color }) => <TabIcon color={color} symbol="☄" />,
-          }}
-        />
-        <Tabs.Screen
-          name="create"
-          options={{
-            title: 'Create',
-            tabBarIcon: ({ color }) => <TabIcon color={color} symbol="＋" />,
-          }}
-        />
-        <Tabs.Screen
-          name="profile"
-          options={{
-            title: 'Profile',
-            tabBarIcon: ({ color }) => <TabIcon color={color} symbol="●" />,
-          }}
-        />
-      </Tabs>
-    </>
+      <RootNavigator />
+    </AuthProvider>
   );
 }
-
-const styles = StyleSheet.create({
-  scene: {
-    backgroundColor: colors.background,
-  },
-  tabBar: {
-    height: 72,
-    paddingTop: 8,
-    paddingBottom: 10,
-    backgroundColor: colors.surface,
-    borderTopColor: colors.border,
-  },
-  tabLabel: {
-    fontSize: 12,
-    fontWeight: '700',
-  },
-  tabIcon: {
-    fontSize: 22,
-    fontWeight: '800',
-    lineHeight: 24,
-  },
-});
