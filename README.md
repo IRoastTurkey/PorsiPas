@@ -56,6 +56,8 @@ npm.cmd --prefix mobile run judge
 
 The judge command installs the locked dependencies when needed, uses the bundled public demo connection, clears stale Expo state, and starts a temporary tunnel. Scan its QR with Expo Go and press `Ctrl+C` to stop it. No Supabase account, database password, migration, `.env`, or demo login is required.
 
+> **QR troubleshooting:** Keep the hosting computer awake, online, and running the Expo terminal. A QR points to that temporary development server and an older QR may stop working after Expo restarts. If a phone cannot connect, restart the judge command and scan the newly generated QR rather than opening an Expo Go recent entry. If tunnel mode remains unreliable, put the computer and phone on the same Wi-Fi or hotspot and run `npm.cmd --prefix mobile run start -- --lan --clear` from the repository root.
+
 The bundled `sb_publishable_...` key is a mobile-safe public identifier; authorization and data access remain enforced by Supabase Auth and Row Level Security. Developers may still override the public URL and key through `mobile/.env` as documented in [mobile/README.md](./mobile/README.md). Never place a database password, secret key, or service-role key in the app.
 
 For a new independent Supabase project, migration order and complete setup instructions are in [mobile/README.md](./mobile/README.md).

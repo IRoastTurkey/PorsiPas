@@ -53,7 +53,9 @@ npm run start:tunnel -- --clear
 
 On the same trusted network, `npm start` is faster. Scan the displayed QR with Expo Go and press `Ctrl+C` when finished.
 
-If Expo Go opens a stale project, clear its app cache/data and scan the new QR instead of selecting a recent entry.
+Keep the hosting computer awake, online, and running the Expo terminal throughout evaluation. A tunnel QR is temporary; after Expo restarts, scan the newly generated QR instead of selecting an older Expo Go recent entry.
+
+If tunnel mode remains unreliable, connect the computer and phone to the same Wi-Fi or hotspot and run `npm.cmd run start -- --lan --clear` from this folder. Force-close Expo Go and scan the fresh LAN QR.
 
 ## 4. Evaluate with two phones
 
