@@ -79,6 +79,7 @@ The server is authoritative for stock, collections, points, streaks, and impact.
 
 ## Submission materials
 
+- [Project description PDF](./PorsiPas_Project_Description.pdf)
 - [Project rationale](./docs/submission/PITCH_RATIONALE.md)
 - [2–3 minute demo script](./docs/submission/DEMO_SCRIPT.md)
 - [Final submission checklist](./docs/submission/FINAL_SUBMISSION_CHECKLIST.md)
