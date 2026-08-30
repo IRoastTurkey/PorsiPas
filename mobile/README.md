@@ -6,22 +6,23 @@ This folder contains the Expo SDK 54 mobile app. The simplest evaluation path is
 
 - Node.js LTS and npm
 - Expo Go on an Android or iOS phone
-- A Supabase project with anonymous authentication enabled
+- Internet access for the shared Supabase demo project
 
 ## 1. Install
 
-From this folder:
+For judges and teammates, run this once from the repository root:
 
 ```powershell
-npm ci
-Copy-Item .env.example .env
+npm.cmd --prefix mobile run judge
 ```
 
-If PowerShell blocks `npm.ps1`, replace `npm` with `npm.cmd`.
+It installs the locked dependencies when needed and starts a cleared Expo tunnel. Scan the displayed QR with Expo Go. No Supabase account, `.env`, database migration, or demo login is required.
 
-## 2. Configure Supabase
+## 2. Optional Supabase override
 
-Add only the mobile-safe public values to `.env`:
+The shared hackathon project's public URL and `sb_publishable_...` client key are bundled into the app. Supabase publishable keys are intended for public mobile clients; Auth and Row Level Security enforce access to the database.
+
+Developers who want to use a different Supabase project can create `.env` in this `mobile` folder and add only its mobile-safe public values:
 
 ```dotenv
 EXPO_PUBLIC_SUPABASE_URL=https://YOUR_PROJECT.supabase.co
@@ -30,7 +31,7 @@ EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY=sb_publishable_YOUR_PUBLIC_KEY
 
 Never use a database password or Supabase service-role key in the mobile app.
 
-For a fresh Supabase project:
+For a fresh independent Supabase project:
 
 1. Enable **Anonymous Sign-Ins** under Authentication settings.
 2. Open the SQL editor.
@@ -40,9 +41,9 @@ For a fresh Supabase project:
    - `../supabase/migrations/202608300001_phase4_retention.sql`
 4. Confirm the migrations complete without errors. They create the required tables, storage configuration, Row Level Security policies, and server functions.
 
-The team's existing project is already migrated. Do not rerun setup SQL against it during judging.
+The bundled team project is already migrated. Do not rerun setup SQL against it during judging.
 
-## 3. Start Expo
+## 3. Manual Expo start
 
 Across different networks, use the temporary tunnel:
 

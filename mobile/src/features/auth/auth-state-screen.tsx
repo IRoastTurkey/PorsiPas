@@ -19,7 +19,7 @@ export function AuthStateScreen({ kind, message, onRetry }: Props) {
         : 'Preparing your rescue pass';
   const description =
     kind === 'config_required'
-      ? 'Create mobile/.env from .env.example, then add the project URL and publishable key. Restart Expo after saving it.'
+      ? 'The bundled public demo connection is unavailable. Pull the latest PorsiPas version and restart Expo.'
       : message ?? 'Signing you in securely. No password needed.';
 
   return (
