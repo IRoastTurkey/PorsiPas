@@ -44,26 +44,21 @@ The full timed narration is in [the demo script](./docs/submission/DEMO_SCRIPT.m
 - Node.js LTS and npm
 - Expo Go compatible with Expo SDK 54
 - Android phone recommended; iOS is supported through Expo Go
-- A configured Supabase project
+- Internet access for the shared Supabase demo project and Expo tunnel
 
 ### Quick start
 
 ```powershell
 git clone https://github.com/IRoastTurkey/PorsiPas.git
-cd PorsiPas\mobile
-npm ci
-Copy-Item .env.example .env
+cd PorsiPas
+npm.cmd --prefix mobile run judge
 ```
 
-Add the Supabase **public project URL** and **publishable key** to `mobile/.env`, then run:
+The judge command installs the locked dependencies when needed, uses the bundled public demo connection, clears stale Expo state, and starts a temporary tunnel. Scan its QR with Expo Go and press `Ctrl+C` to stop it. No Supabase account, database password, migration, `.env`, or demo login is required.
 
-```powershell
-npm run start:tunnel -- --clear
-```
+The bundled `sb_publishable_...` key is a mobile-safe public identifier; authorization and data access remain enforced by Supabase Auth and Row Level Security. Developers may still override the public URL and key through `mobile/.env` as documented in [mobile/README.md](./mobile/README.md). Never place a database password, secret key, or service-role key in the app.
 
-`npm ci` installs the exact versions in `package-lock.json`. Scan the QR with Expo Go. On Windows systems that block `npm.ps1`, use `npm.cmd` in place of `npm`. Press `Ctrl+C` to stop the temporary tunnel.
-
-For a new Supabase project, migration order and complete setup instructions are in [mobile/README.md](./mobile/README.md). Never place a database password or service-role key in the app.
+For a new independent Supabase project, migration order and complete setup instructions are in [mobile/README.md](./mobile/README.md).
 
 ## Architecture and verification
 
